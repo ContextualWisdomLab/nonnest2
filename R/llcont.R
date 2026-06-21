@@ -426,7 +426,7 @@ llcont.lavaan <- function(x, ...){
         if(length(x.idx) == 1){
           tmpll.x <- dnorm(x@Data@X[[g]][,x.idx], Mu.X, sqrt(Sigma.X), log=TRUE)
         } else {
-          tmpll.x <- dmvnorm(x@Data@X[[g]][,x.idx], Mu.X, Sigma.X, log=TRUE)
+          tmpll.x <- try(dmvnorm(x@Data@X[[g]][,x.idx], Mu.X, Sigma.X, log=TRUE))
         }
         if(inherits(tmpll.x, "try-error")) tmpll.x <- NA
         llvec[grpind] <- llvec[grpind] - tmpll.x

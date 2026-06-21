@@ -1,0 +1,4 @@
+## 2025-02-18 - Missing try() around dmvnorm in llcont.lavaan
+**Vulnerability:** A missing `try()` wrapper around a `dmvnorm` call in `R/llcont.R` (line 429) can lead to the application failing unexpectedly if `dmvnorm` throws an error. This is a potential denial-of-service or uncontrolled error propagation vulnerability. Another similar line (471) has `try()`, indicating this was likely an oversight.
+**Learning:** Error handling functions in R, such as `try()`, are critical when dealing with numerical functions that might fail due to specific edge cases (e.g., non-positive definite covariance matrices). Uncaught errors can halt the entire process.
+**Prevention:** Always ensure potentially failing numerical operations, particularly those computing probability densities or likelihoods, are wrapped in appropriate error handling mechanisms like `try()` or `tryCatch()` to fail gracefully.
