@@ -253,7 +253,7 @@ calcAB <- function(object, n, scfun, vc){
   sc.cp <- crossprod(sc)/n
   B <- matrix(sc.cp, nrow(A), nrow(A))
 
-  list(A=A, B=B, sc=sc)
+  list(A=A, B=B, sc=sc, tmpvc=tmpvc)
 }
 
 ## a function to get the cross-product from Eq (2.7)
@@ -271,10 +271,10 @@ calcLambda <- function(object1, object2, n, score1, score2, vc1, vc2) {
   AB2 <- calcAB(object2, n, score2, vc2)
   Bc <- calcBcross(AB1$sc, AB2$sc, n)
 
-  W <- cbind(rbind(-AB1$B %*% chol2inv(chol(AB1$A)),
-                   t(Bc) %*% chol2inv(chol(AB1$A))),
-             rbind(-Bc %*% chol2inv(chol(AB2$A)),
-                   AB2$B %*% chol2inv(chol(AB2$A))))
+  W <- cbind(rbind(-AB1$B %*% AB1$tmpvc,
+                   t(Bc) %*% AB1$tmpvc),
+             rbind(-Bc %*% AB2$tmpvc,
+                   AB2$B %*% AB2$tmpvc))
 
   lamstar <- eigen(W, only.values=TRUE)$values
   ## Discard imaginary part, as it only occurs for tiny eigenvalues?
