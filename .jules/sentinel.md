@@ -1,0 +1,4 @@
+## 2024-05-23 - Secure Error Handling in R Packages
+**Vulnerability:** Uncaught or non-silent errors in R packages can bubble up and leak internal stack traces or internal state information to users or logs, which is a security risk. In `R/llcont.R`, log-likelihood calculations using `dnorm` and `dmvnorm` could fail, but only one case was wrapped in `try()` (without `silent=TRUE`) and the others had no `try()` wrapper despite expecting to catch errors using `inherits(tmpll.x, "try-error")`.
+**Learning:** `try()` calls in R should use `silent=TRUE` when the goal is to securely catch exceptions and return an expected default (like `NA`), instead of exposing the error details to the caller or console.
+**Prevention:** Always verify that code that expects `try-error` actually wraps its execution in `try(..., silent=TRUE)`.
