@@ -231,7 +231,7 @@ calcAB <- function(object, n, scfun, vc){
     ## in case mirt vcov was not estimated
     if(nrow(tmpvc) == 1 & is.na(tmpvc[1,1])) stop("Please re-estimate the mirt model with SE=TRUE")
   }
-  A <- chol2inv(chol(tmpvc))
+  Ainv <- tmpvc
 
   ## Eq (2.2)
   if(!is.null(scfun)){
@@ -251,9 +251,9 @@ calcAB <- function(object, n, scfun, vc){
     sc <- estfun(object)
   }
   sc.cp <- crossprod(sc)/n
-  B <- matrix(sc.cp, nrow(A), nrow(A))
+  B <- matrix(sc.cp, nrow(Ainv), nrow(Ainv))
 
-  list(A=A, B=B, sc=sc)
+  list(Ainv=Ainv, B=B, sc=sc)
 }
 
 ## a function to get the cross-product from Eq (2.7)
@@ -271,10 +271,10 @@ calcLambda <- function(object1, object2, n, score1, score2, vc1, vc2) {
   AB2 <- calcAB(object2, n, score2, vc2)
   Bc <- calcBcross(AB1$sc, AB2$sc, n)
 
-  W <- cbind(rbind(-AB1$B %*% chol2inv(chol(AB1$A)),
-                   t(Bc) %*% chol2inv(chol(AB1$A))),
-             rbind(-Bc %*% chol2inv(chol(AB2$A)),
-                   AB2$B %*% chol2inv(chol(AB2$A))))
+  W <- cbind(rbind(-AB1$B %*% AB1$Ainv,
+                   t(Bc) %*% AB1$Ainv),
+             rbind(-Bc %*% AB2$Ainv,
+                   AB2$B %*% AB2$Ainv))
 
   lamstar <- eigen(W, only.values=TRUE)$values
   ## Discard imaginary part, as it only occurs for tiny eigenvalues?
