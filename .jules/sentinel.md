@@ -1,0 +1,4 @@
+## 2026-03-31 - Missing Input Validation on Exported Statistical Functions
+**Vulnerability:** Core exported functions like `vuongtest` and `icci` lacked proper parameter validation (e.g., `adj` not constrained to specific strings, `nested` not strictly logical, `conf.level` not checked for valid probability bounds). This could lead to unexpected code execution paths, cryptic R errors downstream, or invalid statistical output when users supply bad input.
+**Learning:** In R packages, exported functions that accept string arguments for configuration (`adj`) or numeric parameters with bounds (`conf.level`) must explicitly validate them early using `match.arg()`, `is.numeric()`, `is.logical()` and bounds checking, rather than implicitly trusting the input.
+**Prevention:** Consistently apply `match.arg()` for multiple-choice string parameters and explicit `if`/`stop` blocks or `stopifnot()` for type/bounds checking on exported function entry points.

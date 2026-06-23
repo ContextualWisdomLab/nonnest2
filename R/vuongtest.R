@@ -98,6 +98,10 @@
 #' @export
 vuongtest <- function(object1, object2, nested=FALSE, adj="none", ll1=llcont, ll2=llcont, score1=NULL, score2=NULL, vc1=vcov, vc2=vcov) {
 
+  ## Input validation
+  adj <- match.arg(adj, c("none", "aic", "bic"))
+  if(!is.logical(nested) || length(nested) != 1) stop("nested must be a logical value of length 1")
+
   ## check objects, issue warnings/errors, get classes/calls
   obinfo <- check.obj(object1, object2)
   callA <- obinfo$callA; classA <- obinfo$classA
