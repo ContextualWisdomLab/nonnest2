@@ -1,0 +1,3 @@
+## 2024-05-24 - Avoid Double Matrix Inversion
+**Learning:** Found a performance bottleneck where a covariance matrix is inverted, passed to another function, and then inverted again (`chol2inv(chol(A))`). This is not only an unnecessary $O(p^3)$ performance overhead, but also risks precision loss due to repeated floating point calculations.
+**Action:** When a matrix and its inverse are needed, consider whether passing the original un-inverted matrix is sufficient, or pass both. In `vuongtest.R`, we can just pass the original variance-covariance matrix (`tmpvc`) rather than inverting it in `calcAB` and inverting it back in `calcLambda`.
