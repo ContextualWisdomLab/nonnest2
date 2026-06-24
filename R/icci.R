@@ -65,6 +65,11 @@
 #' @export
 icci <- function(object1, object2, conf.level=.95, ll1=llcont, ll2=llcont) {
 
+  ## Input validation
+  if (!is.numeric(conf.level) || length(conf.level) != 1 || conf.level <= 0 || conf.level >= 1) {
+    stop("Argument 'conf.level' must be a single numeric value strictly between 0 and 1.")
+  }
+
   ## check objects, issue warnings/errors, get classes/calls
   obinfo <- check.obj(object1, object2)
   callA <- obinfo$callA; classA <- obinfo$classA

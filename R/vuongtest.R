@@ -96,7 +96,13 @@
 #' @importMethodsFrom lavaan coef fitted logLik vcov
 #' @importFrom methods slotNames
 #' @export
-vuongtest <- function(object1, object2, nested=FALSE, adj="none", ll1=llcont, ll2=llcont, score1=NULL, score2=NULL, vc1=vcov, vc2=vcov) {
+vuongtest <- function(object1, object2, nested=FALSE, adj=c("none", "aic", "bic"), ll1=llcont, ll2=llcont, score1=NULL, score2=NULL, vc1=vcov, vc2=vcov) {
+
+  ## Input validation for security and robustness
+  if (!is.logical(nested) || length(nested) != 1) {
+    stop("Argument 'nested' must be a single logical value.")
+  }
+  adj <- match.arg(adj)
 
   ## check objects, issue warnings/errors, get classes/calls
   obinfo <- check.obj(object1, object2)
