@@ -1,0 +1,3 @@
+## 2024-05-24 - Expensive operations in R
+**Learning:** Common performance bottlenecks in math-heavy R libraries often come from duplicated operations in algebraic functions, such as Cholesky decompositions or matrix inversions. Due to CRAN checks, any arbitrary test scripts we write to evaluate these improvements shouldn't be left in the root package directory.
+**Action:** When working on math-heavy code, always search for repeated expensive computations, cache their results, and verify the improvements. Make sure to delete any local test scripts prior to submission to avoid interfering with CRAN submission checks.
