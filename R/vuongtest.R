@@ -253,7 +253,8 @@ calcAB <- function(object, n, scfun, vc){
   sc.cp <- crossprod(sc)/n
   B <- matrix(sc.cp, nrow(A), nrow(A))
 
-  list(A=A, B=B, sc=sc)
+  # ⚡ Bolt: Return tmpvc as A_inv to avoid redundant double matrix inversion later in calcLambda
+  list(A=A, B=B, sc=sc, A_inv=tmpvc)
 }
 
 ## a function to get the cross-product from Eq (2.7)
@@ -271,10 +272,13 @@ calcLambda <- function(object1, object2, n, score1, score2, vc1, vc2) {
   AB2 <- calcAB(object2, n, score2, vc2)
   Bc <- calcBcross(AB1$sc, AB2$sc, n)
 
-  W <- cbind(rbind(-AB1$B %*% chol2inv(chol(AB1$A)),
-                   t(Bc) %*% chol2inv(chol(AB1$A))),
-             rbind(-Bc %*% chol2inv(chol(AB2$A)),
-                   AB2$B %*% chol2inv(chol(AB2$A))))
+  # ⚡ Bolt: Use A_inv directly instead of chol2inv(chol(A)) to eliminate redundant matrix inversions.
+  # chol2inv(chol(AB1$A)) calculates the inverse of AB1$A. Since AB1$A is the inverse of AB1$A_inv,
+  # the inverse of AB1$A is simply AB1$A_inv. This saves two O(N^3) operations.
+  W <- cbind(rbind(-AB1$B %*% AB1$A_inv,
+                   t(Bc) %*% AB1$A_inv),
+             rbind(-Bc %*% AB2$A_inv,
+                   AB2$B %*% AB2$A_inv))
 
   lamstar <- eigen(W, only.values=TRUE)$values
   ## Discard imaginary part, as it only occurs for tiny eigenvalues?
