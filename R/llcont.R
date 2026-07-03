@@ -426,7 +426,8 @@ llcont.lavaan <- function(x, ...){
         if(length(x.idx) == 1){
           tmpll.x <- dnorm(x@Data@X[[g]][,x.idx], Mu.X, sqrt(Sigma.X), log=TRUE)
         } else {
-          tmpll.x <- dmvnorm(x@Data@X[[g]][,x.idx], Mu.X, Sigma.X, log=TRUE)
+          ## Security: Use try(..., silent=TRUE) to prevent leaking internal execution errors (e.g., matrix singularity details)
+          tmpll.x <- try(dmvnorm(x@Data@X[[g]][,x.idx], Mu.X, Sigma.X, log=TRUE), silent = TRUE)
         }
         if(inherits(tmpll.x, "try-error")) tmpll.x <- NA
         llvec[grpind] <- llvec[grpind] - tmpll.x
@@ -468,7 +469,8 @@ llcont.lavaan <- function(x, ...){
           if(length(x.idx) == 1){
             tmpll.x <- dnorm(X[,x.dat.idx], Mu.X, sqrt(Sigma.X), log=TRUE)
           } else {
-            tmpll.x <- try(dmvnorm(X[,x.dat.idx], Mu.X, Sigma.X, log=TRUE))
+            ## Security: Use try(..., silent=TRUE) to prevent leaking internal execution errors (e.g., matrix singularity details)
+            tmpll.x <- try(dmvnorm(X[,x.dat.idx], Mu.X, Sigma.X, log=TRUE), silent = TRUE)
           }
           if(inherits(tmpll.x, "try-error")) tmpll.x <- NA
           tmpll[case.idx] <- tmpll[case.idx] - tmpll.x
