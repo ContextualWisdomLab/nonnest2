@@ -1,3 +1,3 @@
-## 2024-06-23 - Removed redundant matrix inversions
-**Learning:** Found redundant double inversions of variance-covariance matrices in `vuongtest.R` where `A = chol2inv(chol(tmpvc))` was calculated, and then later `chol2inv(chol(A))` was used, essentially computing `tmpvc` again.
-**Action:** Always check if a variable holding a matrix inverse is inverted again downstream, and refactor to pass the original un-inverted matrix instead to save computation time.
+## 2024-06-23 - Removed redundant matrix inversions (Rejected)
+**Learning:** Found redundant double inversions of variance-covariance matrices in `vuongtest.R` where `A = chol2inv(chol(tmpvc))` was calculated, and then later `chol2inv(chol(A))` was used, essentially computing `tmpvc` again. However, the PR was rejected because `calcAB()` is documented as explicitly implementing Vuong Eq. (2.1) and (2.2). Replacing `A` with `Ainv` broke the source-level correspondence to the original paper formula.
+**Action:** When optimizing algorithms that directly implement published mathematical formulas, ensure the optimization does not destroy the code's correspondence to the original equations, as clarity and documentation match may be valued higher than raw execution speed.
