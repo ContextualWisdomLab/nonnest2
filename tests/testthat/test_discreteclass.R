@@ -1,10 +1,16 @@
 context("DiscreteClass mirt::extract.mirt path")
 
 test_that("DiscreteClass uses mirt::extract.mirt for npar in vuongtest", {
-  if (isTRUE(require("mirt"))) {
-    data <- expand.table(LSAT7)
-    mod1 <- mdirt(data, 2, SE = TRUE, SE.type = "Oakes")
-    mod2 <- mdirt(data, 3, SE = TRUE, SE.type = "Oakes")
+  skip_if_not_installed("mirt")
+  suppressPackageStartupMessages(library(mirt))
+
+  data <- expand.table(LSAT7)
+  utils::capture.output(
+    mod1 <- mdirt(data, 2, SE = TRUE, SE.type = "Oakes", verbose = FALSE)
+  )
+  utils::capture.output(
+    mod2 <- mdirt(data, 3, SE = TRUE, SE.type = "Oakes", verbose = FALSE)
+  )
 
     ## expected npar from mirt::extract.mirt (the correct path)
     npar1 <- mirt::extract.mirt(mod1, "nest")
@@ -41,14 +47,19 @@ test_that("DiscreteClass uses mirt::extract.mirt for npar in vuongtest", {
     lr_bic_expected <- lr_none - (npar1 - npar2) * log(n) / 2
     teststat_bic_expected <- (1 / sqrt(n)) * lr_bic_expected / sqrt(omega2)
     expect_equal(vt_bic$LRTstat, teststat_bic_expected)
-  }
 })
 
 test_that("DiscreteClass uses mirt::extract.mirt for AIC/BIC in icci", {
-  if (isTRUE(require("mirt"))) {
-    data <- expand.table(LSAT7)
-    mod1 <- mdirt(data, 2, SE = TRUE, SE.type = "Oakes")
-    mod2 <- mdirt(data, 3, SE = TRUE, SE.type = "Oakes")
+  skip_if_not_installed("mirt")
+  suppressPackageStartupMessages(library(mirt))
+
+  data <- expand.table(LSAT7)
+  utils::capture.output(
+    mod1 <- mdirt(data, 2, SE = TRUE, SE.type = "Oakes", verbose = FALSE)
+  )
+  utils::capture.output(
+    mod2 <- mdirt(data, 3, SE = TRUE, SE.type = "Oakes", verbose = FALSE)
+  )
 
     ## expected AIC/BIC from mirt::extract.mirt (the correct path)
     aic1 <- mirt::extract.mirt(mod1, "AIC")
@@ -64,5 +75,4 @@ test_that("DiscreteClass uses mirt::extract.mirt for AIC/BIC in icci", {
     expect_equal(ic$AIC$AIC2, aic2)
     expect_equal(ic$BIC$BIC1, bic1)
     expect_equal(ic$BIC$BIC2, bic2)
-  }
 })

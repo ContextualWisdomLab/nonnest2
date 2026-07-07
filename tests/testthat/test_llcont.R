@@ -1,7 +1,9 @@
 context("sum of llcont")
 
 test_that("lavaan object", {
-  if (isTRUE(require("lavaan"))) {
+  skip_if_not_installed("lavaan")
+  suppressPackageStartupMessages(library(lavaan))
+
     HS.model <- 'visual  =~ x1 + x2 + x3
                  textual =~ x4 + x5 + x6
                  speed   =~ x7 + x8 + x9 '
@@ -21,7 +23,10 @@ test_that("lavaan object", {
     HS.model2 <- 'visual =~ x1 + 0.5*x2 + c(0.6, 0.8)*x3
                   textual =~ x4 + start(c(1.2, 0.6))*x5 + a*x6
                   speed   =~ x7 + x8 + x9'
-    fit5 <- cfa(HS.model2, data=HolzingerSwineford1939, group="school")
+    expect_warning(
+      fit5 <- cfa(HS.model2, data=HolzingerSwineford1939, group="school"),
+      "single label"
+    )
     
     expect_equal(round(sum(llcont(fit5)) -  as.numeric(logLik(fit5)), 8), 0L)
     
@@ -48,14 +53,20 @@ test_that("lavaan object", {
     Data <- Data*obs
     Data[Data==0] <- NA
     Data[95,] <- NA
-    fit7 <- sem(model, data=Data, fixed.x=TRUE, meanstructure=TRUE, missing='ml')
+    expect_warning(
+      fit7 <- sem(model, data=Data, fixed.x=TRUE, meanstructure=TRUE, missing='ml'),
+      "deleted due to missing values"
+    )
     expect_equal(sum(llcont(fit7)), as.numeric(logLik(fit7)))
-  }
 })
 
 
 test_that("glm object", {
-  if (isTRUE(require("faraway")) && isTRUE(require("MASS"))) {
+  skip_if_not_installed("faraway")
+  skip_if_not_installed("MASS")
+  suppressPackageStartupMessages(library(faraway))
+  suppressPackageStartupMessages(library(MASS))
+
     ## binomial
     bin1 <- glm(formula=am ~ hp + wt, data=mtcars, family=binomial)
     bin2 <- glm(cbind(Menarche, Total-Menarche) ~ Age,
@@ -117,12 +128,15 @@ test_that("glm object", {
     nb1 <- glm.nb(Days ~ Sex/(Age + Eth*Lrn), data = quine)
 
     expect_equal(sum(llcont(nb1)), as.numeric(logLik(nb1)))
-  }
 })
 
 
 test_that("clm object", {
-  if (isTRUE(require("ordinal")) && isTRUE(require("MASS"))) {
+  skip_if_not_installed("ordinal")
+  skip_if_not_installed("MASS")
+  suppressPackageStartupMessages(library(ordinal))
+  suppressPackageStartupMessages(library(MASS))
+
     clm1 <- clm(rating ~ temp * contact, data = wine)
     clm2 <- update(clm1, ~.-temp:contact)
     clm3 <- update(clm1, link = "logit")
@@ -144,12 +158,13 @@ test_that("clm object", {
     expect_equal(sum(llcont(clm8)), as.numeric(logLik(clm8)))
     expect_equal(sum(llcont(clm9)), as.numeric(logLik(clm9)))
     expect_equal(sum(llcont(clm10)), as.numeric(logLik(clm10)))
-  }
 })
 
 
 test_that("hurdle object", {
-  if (isTRUE(require("pscl"))) {
+  skip_if_not_installed("pscl")
+  suppressPackageStartupMessages(library(pscl))
+
     hurdle1 <- hurdle(formula = art ~ ., data = bioChemists)
     hurdle2 <- hurdle(formula = art ~ ., data = bioChemists, separate=FALSE)
     hurdle3 <- hurdle(art ~ ., data = bioChemists, zero = "geometric")
@@ -162,12 +177,13 @@ test_that("hurdle object", {
     expect_equal(sum(llcont(hurdle3)), as.numeric(logLik(hurdle3)))
     expect_equal(sum(llcont(hurdle4)), as.numeric(logLik(hurdle4)))
     expect_equal(sum(llcont(hurdle5)), as.numeric(logLik(hurdle5)))
-  }
 })
 
 
 test_that("zeroinfl object", {
-  if (isTRUE(require("pscl"))) {
+  skip_if_not_installed("pscl")
+  suppressPackageStartupMessages(library(pscl))
+
     zi1 <- zeroinfl(art ~ . | 1, data = bioChemists)
     zi2 <- zeroinfl(art ~ . | 1, data = bioChemists, dist = "negbin")
     zi3 <- zeroinfl(art ~ . | ., data = bioChemists)
@@ -177,7 +193,6 @@ test_that("zeroinfl object", {
     expect_equal(sum(llcont(zi2)), as.numeric(logLik(zi2)))
     expect_equal(sum(llcont(zi3)), as.numeric(logLik(zi3)))
     expect_equal(sum(llcont(zi4)), as.numeric(logLik(zi4)))
-  }
 })
 
 
@@ -193,7 +208,11 @@ test_that("lm object", {
 
 
 test_that("mlogit object", {
-  if (isTRUE(require("mlogit")) & isTRUE(require("AER"))) {
+  skip_if_not_installed("mlogit")
+  skip_if_not_installed("AER")
+  suppressPackageStartupMessages(library(mlogit))
+  suppressPackageStartupMessages(library(AER))
+
     data("Fishing", package = "mlogit")
     Fish <- mlogit.data(Fishing, varying = c(2:9), shape = "wide",
                         choice = "mode")
@@ -243,7 +262,6 @@ test_that("mlogit object", {
     expect_equal(sum(llcont(mlog8)), as.numeric(logLik(mlog8)))
     ##expect_equal(sum(llcont(mlog9)), as.numeric(logLik(mlog9)))
     expect_equal(sum(llcont(mlog10)), as.numeric(logLik(mlog10)))
-  }
 })
 
 
@@ -291,7 +309,8 @@ test_that("nls object", {
   }
   nls7 <- nls( ~ weighted.MM.grad(rate, conc1, conc.1, Vm, K),
               data = lisTreat, start = list(Vm = 200, K = 0.1))
-  if(isTRUE(require("MASS"))){
+  if(isTRUE(requireNamespace("MASS", quietly = TRUE))){
+      suppressPackageStartupMessages(library(MASS))
       utils::data(muscle, package = "MASS")
       nls9 <- nls(Length ~ cbind(1, exp(-Conc/th)), muscle,
                   start = list(th = 1), algorithm = "plinear")
@@ -315,7 +334,9 @@ test_that("nls object", {
 
 
 test_that("polr object", {
-  if (isTRUE(require("MASS"))) {
+  skip_if_not_installed("MASS")
+  suppressPackageStartupMessages(library(MASS))
+
     options(contrasts = c("contr.treatment", "contr.poly"))
     polr1 <- polr(Sat ~ Infl + Type + Cont, weights = Freq, data = housing)
     polr2 <- update(polr1, method = "probit", Hess = TRUE)
@@ -326,12 +347,13 @@ test_that("polr object", {
     expect_equal(sum(llcont(polr2)), as.numeric(logLik(polr2)))
     expect_equal(sum(llcont(polr3)), as.numeric(logLik(polr3)))
     expect_equal(sum(llcont(polr4)), as.numeric(logLik(polr4)))
-  }
 })
 
 
 test_that("rlm object", {
-  if (isTRUE(require("MASS"))) {
+  skip_if_not_installed("MASS")
+  suppressPackageStartupMessages(library(MASS))
+
     rlm1 <- rlm(stack.loss ~ ., stackloss)
     rlm2 <- rlm(stack.loss ~ ., stackloss, psi = psi.hampel, init = "lts")
     rlm3 <- rlm(stack.loss ~ ., stackloss, psi = psi.bisquare)
@@ -339,12 +361,15 @@ test_that("rlm object", {
     expect_equal(sum(llcont(rlm1)), as.numeric(logLik(rlm1)))
     expect_equal(sum(llcont(rlm2)), as.numeric(logLik(rlm2)))
     expect_equal(sum(llcont(rlm3)), as.numeric(logLik(rlm3)))
-  }
 })
 
 
 test_that("OpenMx object", {
-  if (isTRUE(require("OpenMx")) & isTRUE(require("tidySEM"))) {
+  skip_if_not_installed("OpenMx")
+  skip_if_not_installed("tidySEM")
+  suppressPackageStartupMessages(library(OpenMx))
+  suppressPackageStartupMessages(library(tidySEM))
+
     
     res <- mx_lca(data = data_mix_ordinal, classes = 1:2, run = FALSE)
     
@@ -358,7 +383,6 @@ test_that("OpenMx object", {
     
     expect_equal(sum(llcont(res[[1]])), as.numeric(logLik(res[[1]])))
     expect_equal(sum(llcont(res[[2]])), as.numeric(logLik(res[[2]])))
-  }
 })
 
 

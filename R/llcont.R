@@ -428,7 +428,9 @@ llcont.lavaan <- function(x, ...){
         } else {
           tmpll.x <- dmvnorm(x@Data@X[[g]][,x.idx], Mu.X, Sigma.X, log=TRUE)
         }
+        # nocov start
         if(inherits(tmpll.x, "try-error")) tmpll.x <- NA
+        # nocov end
         llvec[grpind] <- llvec[grpind] - tmpll.x
       }
 
@@ -470,7 +472,9 @@ llcont.lavaan <- function(x, ...){
           } else {
             tmpll.x <- try(dmvnorm(X[,x.dat.idx], Mu.X, Sigma.X, log=TRUE))
           }
+          # nocov start
           if(inherits(tmpll.x, "try-error")) tmpll.x <- NA
+          # nocov end
           tmpll[case.idx] <- tmpll[case.idx] - tmpll.x
         }
       }
@@ -485,10 +489,12 @@ llcont.lavaan <- function(x, ...){
   useidx <- unlist(lavInspect(x, 'case.idx'))
   llvec <- llvec[useidx]
 
+  # nocov start
   if(length(llvec) != sum(unlist(lavInspect(x, 'nobs')))){
     llvec <- llvec[!is.na(llvec)]
     if(length(llvec) != sum(unlist(lavInspect(x, 'nobs')))) warning("nonnest2 warning: problem with llcont(), likely due to missing data.")
   }
+  # nocov end
 
   llvec
 }
@@ -537,6 +543,7 @@ llcont.DiscreteClass <- function(x, ...){
 ## Getting log-likelihood of OpenMx objects for individual cases
 ################################################################
 #' @export
+# nocov start
 llcont.MxModel <- function(x, ...){
 
   wgts <- x$expectation$output$weights
@@ -564,5 +571,4 @@ llcont.MxModel <- function(x, ...){
 
   return(lls)
 }
-
-
+# nocov end
