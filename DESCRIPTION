@@ -36,8 +36,7 @@ Suggests:
     pscl,
     knitr,
     rmarkdown,
-    testthat,
-    rstudioapi
+    testthat
 URL: https://github.com/qpsy/nonnest2
 VignetteBuilder: knitr
 RoxygenNote: 7.3.3
