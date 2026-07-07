@@ -271,10 +271,15 @@ calcLambda <- function(object1, object2, n, score1, score2, vc1, vc2) {
   AB2 <- calcAB(object2, n, score2, vc2)
   Bc <- calcBcross(AB1$sc, AB2$sc, n)
 
-  W <- cbind(rbind(-AB1$B %*% chol2inv(chol(AB1$A)),
-                   t(Bc) %*% chol2inv(chol(AB1$A))),
-             rbind(-Bc %*% chol2inv(chol(AB2$A)),
-                   AB2$B %*% chol2inv(chol(AB2$A))))
+  ## Bolt: cache chol2inv(chol(AB1$A)) and chol2inv(chol(AB2$A)) locally
+  ## to avoid computing matrix inverses twice.
+  invA1 <- chol2inv(chol(AB1$A))
+  invA2 <- chol2inv(chol(AB2$A))
+
+  W <- cbind(rbind(-AB1$B %*% invA1,
+                   t(Bc) %*% invA1),
+             rbind(-Bc %*% invA2,
+                   AB2$B %*% invA2))
 
   lamstar <- eigen(W, only.values=TRUE)$values
   ## Discard imaginary part, as it only occurs for tiny eigenvalues?
