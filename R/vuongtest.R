@@ -231,12 +231,7 @@ calcAB <- function(object, n, scfun, vc){
     ## in case mirt vcov was not estimated
     if(nrow(tmpvc) == 1 & is.na(tmpvc[1,1])) stop("Please re-estimate the mirt model with SE=TRUE")
   }
-
-  # Bolt: performance improvement - avoid unnecessary matrix inversion
-  # A <- chol2inv(chol(tmpvc))
-  # A is the inverse of tmpvc, but later in calcLambda we compute chol2inv(chol(A))
-  # By saving tmpvc as Ainv we can avoid computing inverse of an inverse in calcLambda
-  Ainv <- tmpvc
+  A <- chol2inv(chol(tmpvc))
 
   ## Eq (2.2)
   if(!is.null(scfun)){
@@ -256,9 +251,9 @@ calcAB <- function(object, n, scfun, vc){
     sc <- estfun(object)
   }
   sc.cp <- crossprod(sc)/n
-  B <- matrix(sc.cp, nrow(Ainv), nrow(Ainv))
+  B <- matrix(sc.cp, nrow(A), nrow(A))
 
-  list(Ainv=Ainv, B=B, sc=sc)
+  list(A=A, B=B, sc=sc)
 }
 
 ## a function to get the cross-product from Eq (2.7)
@@ -276,12 +271,15 @@ calcLambda <- function(object1, object2, n, score1, score2, vc1, vc2) {
   AB2 <- calcAB(object2, n, score2, vc2)
   Bc <- calcBcross(AB1$sc, AB2$sc, n)
 
-  # Bolt: performance improvement - use Ainv directly instead of chol2inv(chol(AB$A))
-  # This eliminates matrix inversions and computing the inverse of an inverse.
-  W <- cbind(rbind(-AB1$B %*% AB1$Ainv,
-                   t(Bc) %*% AB1$Ainv),
-             rbind(-Bc %*% AB2$Ainv,
-                   AB2$B %*% AB2$Ainv))
+  # Bolt: performance improvement - cache the inverses instead of computing twice
+  # This retains source-level correspondence in calcAB while improving performance
+  invA1 <- chol2inv(chol(AB1$A))
+  invA2 <- chol2inv(chol(AB2$A))
+
+  W <- cbind(rbind(-AB1$B %*% invA1,
+                   t(Bc) %*% invA1),
+             rbind(-Bc %*% invA2,
+                   AB2$B %*% invA2))
 
   lamstar <- eigen(W, only.values=TRUE)$values
   ## Discard imaginary part, as it only occurs for tiny eigenvalues?
