@@ -424,9 +424,11 @@ llcont.lavaan <- function(x, ...){
         }
 
         if(length(x.idx) == 1){
-          tmpll.x <- dnorm(x@Data@X[[g]][,x.idx], Mu.X, sqrt(Sigma.X), log=TRUE)
+          # 🛡️ Sentinel: Use try(..., silent = TRUE) to prevent leaking math exception details
+          tmpll.x <- try(dnorm(x@Data@X[[g]][,x.idx], Mu.X, sqrt(Sigma.X), log=TRUE), silent = TRUE)
         } else {
-          tmpll.x <- dmvnorm(x@Data@X[[g]][,x.idx], Mu.X, Sigma.X, log=TRUE)
+          # 🛡️ Sentinel: Use try(..., silent = TRUE) to prevent leaking math exception details
+          tmpll.x <- try(dmvnorm(x@Data@X[[g]][,x.idx], Mu.X, Sigma.X, log=TRUE), silent = TRUE)
         }
         if(inherits(tmpll.x, "try-error")) tmpll.x <- NA
         llvec[grpind] <- llvec[grpind] - tmpll.x
@@ -466,9 +468,11 @@ llcont.lavaan <- function(x, ...){
           Sigma.X <- Sigma.hat[x.idx, x.idx, drop=FALSE]
 
           if(length(x.idx) == 1){
-            tmpll.x <- dnorm(X[,x.dat.idx], Mu.X, sqrt(Sigma.X), log=TRUE)
+            # 🛡️ Sentinel: Use try(..., silent = TRUE) to prevent leaking math exception details
+            tmpll.x <- try(dnorm(X[,x.dat.idx], Mu.X, sqrt(Sigma.X), log=TRUE), silent = TRUE)
           } else {
-            tmpll.x <- try(dmvnorm(X[,x.dat.idx], Mu.X, Sigma.X, log=TRUE))
+            # 🛡️ Sentinel: Use try(..., silent = TRUE) to prevent leaking math exception details
+            tmpll.x <- try(dmvnorm(X[,x.dat.idx], Mu.X, Sigma.X, log=TRUE), silent = TRUE)
           }
           if(inherits(tmpll.x, "try-error")) tmpll.x <- NA
           tmpll[case.idx] <- tmpll[case.idx] - tmpll.x
