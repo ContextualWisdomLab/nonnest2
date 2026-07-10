@@ -51,7 +51,7 @@ llcont.glm <- function(x, ...){
     switch(fam,
            binomial = {
              if(is.matrix(y)) {
-               # ⚡ Bolt Optimization: Use vectorized rowSums instead of apply for performance
+               # Bolt Optimization: Use vectorized rowSums instead of apply for performance
                n <- rowSums(y)
                y <- ifelse(n == 0, 0, y[, 1]/n)
              } else {
@@ -340,7 +340,7 @@ llcont.polr <- function(x, ...) {
   idx <- matrix(0, nrow=length(y), ncol=length(x$lev))
   idx[wherey] <- 1
 
-  # ⚡ Bolt Optimization: Use vectorized rowSums instead of apply for performance
+  # Bolt Optimization: Use vectorized rowSums instead of apply for performance
   model.weights(m) * log(rowSums(idx * x$fitted.values))
 }
 
@@ -409,7 +409,7 @@ llcont.lavaan <- function(x, ...){
         Mu.hat <- unclass(moments$mean)
       } else {
         ## set mean structure to sample estimates
-        # ⚡ Bolt Optimization: Use vectorized colMeans instead of apply for performance
+        # Bolt Optimization: Use vectorized colMeans instead of apply for performance
         Mu.hat <- colMeans(x@Data@X[[g]])
       }
       llvec[grpind] <- dmvnorm(x@Data@X[[g]], Mu.hat, Sigma.hat, log=TRUE)
