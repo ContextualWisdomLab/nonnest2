@@ -468,7 +468,7 @@ llcont.lavaan <- function(x, ...){
           if(length(x.idx) == 1){
             tmpll.x <- dnorm(X[,x.dat.idx], Mu.X, sqrt(Sigma.X), log=TRUE)
           } else {
-            ## 🛡️ Sentinel: prevent error details from leaking (Information Disclosure)
+            ## Sentinel: prevent error details from leaking
             tmpll.x <- try(dmvnorm(X[,x.dat.idx], Mu.X, Sigma.X, log=TRUE), silent = TRUE)
           }
           if(inherits(tmpll.x, "try-error")) tmpll.x <- NA
