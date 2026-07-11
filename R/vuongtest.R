@@ -239,12 +239,31 @@ calcAB <- function(object, n, scfun, vc){
   } else if(class(object)[1] == "lavaan"){
     sc <- estfun(object, remove.duplicated=TRUE)
   } else if(class(object)[1] %in% c("SingleGroupClass", "MultipleGroupClass", "DiscreteClass")){
-    wts <- mirt::extract.mirt(object, "survey.weights")
-    if(length(wts) > 0){
-      sc <- mirt::estfun.AllModelClass(object, weights = sqrt(wts))
-    } else {
-      sc <- mirt::estfun.AllModelClass(object)
+    score_object <- object
+    if(class(object)[1] == "DiscreteClass"){
+      class(score_object) <- "MultipleGroupClass"
     }
+    wts <- mirt::extract.mirt(object, "survey.weights")
+    sc <- tryCatch(
+      {
+        if(length(wts) > 0){
+          mirt::estfun.AllModelClass(score_object, weights = sqrt(wts))
+        } else {
+          mirt::estfun.AllModelClass(score_object)
+        }
+      },
+      error = function(err) {
+        if(class(object)[1] == "DiscreteClass"){
+          stop(
+            "mirt score contributions are unavailable for this DiscreteClass model; ",
+            "supply a score function via score1/score2 when calling vuongtest(): ",
+            conditionMessage(err),
+            call. = FALSE
+          )
+        }
+        stop(err)
+      }
+    )
   } else if(class(object)[1] %in% c("lm", "glm", "nls")){
     sc <- (1/scaling) * estfun(object)
   } else {
