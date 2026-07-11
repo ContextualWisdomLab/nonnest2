@@ -51,7 +51,8 @@ llcont.glm <- function(x, ...){
     switch(fam,
            binomial = {
              if(is.matrix(y)) {
-               n <- apply(y, 1, sum)
+               ## Bolt: replaced apply(..., 1, sum) with optimized rowSums() for performance
+               n <- rowSums(y)
                y <- ifelse(n == 0, 0, y[, 1]/n)
              } else {
                n <- rep.int(1, length(y))
@@ -339,7 +340,8 @@ llcont.polr <- function(x, ...) {
   idx <- matrix(0, nrow=length(y), ncol=length(x$lev))
   idx[wherey] <- 1
 
-  model.weights(m) * log(apply(idx * x$fitted.values, 1, sum))
+  ## Bolt: replaced apply(..., 1, sum) with optimized rowSums() for performance
+  model.weights(m) * log(rowSums(idx * x$fitted.values))
 }
 
 ################################################################
@@ -407,7 +409,8 @@ llcont.lavaan <- function(x, ...){
         Mu.hat <- unclass(moments$mean)
       } else {
         ## set mean structure to sample estimates
-        Mu.hat <- apply(x@Data@X[[g]], 2, mean)
+        ## Bolt: replaced apply(..., 2, mean) with optimized colMeans() for performance
+        Mu.hat <- colMeans(x@Data@X[[g]])
       }
       llvec[grpind] <- dmvnorm(x@Data@X[[g]], Mu.hat, Sigma.hat, log=TRUE)
 
