@@ -261,7 +261,8 @@ calcAB <- function(object, n, scfun, vc){
             call. = FALSE
           )
         }
-        stop(err)
+        ## Sentinel: prevent error stack trace details from leaking
+        stop("Failed to compute scores for the model: ", conditionMessage(err), call. = FALSE)
       }
     )
   } else if(class(object)[1] %in% c("lm", "glm", "nls")){
