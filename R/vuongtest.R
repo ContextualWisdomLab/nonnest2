@@ -231,7 +231,15 @@ calcAB <- function(object, n, scfun, vc){
     ## in case mirt vcov was not estimated
     if(nrow(tmpvc) == 1 & is.na(tmpvc[1,1])) stop("Please re-estimate the mirt model with SE=TRUE")
   }
-  A <- tryCatch(chol2inv(chol(tmpvc)), error = function(e) stop("Matrix inversion failed during Vuong test: matrix may not be positive definite.", call. = FALSE))
+  A <- tryCatch(
+    chol2inv(chol(tmpvc)),
+    error = function(e) {
+      stop(
+        "Matrix inversion failed during Vuong test: matrix may not be positive definite.",
+        call. = FALSE
+      )
+    }
+  )
 
   ## Eq (2.2)
   if(!is.null(scfun)){
@@ -256,13 +264,11 @@ calcAB <- function(object, n, scfun, vc){
         if(class(object)[1] == "DiscreteClass"){
           stop(
             "mirt score contributions are unavailable for this DiscreteClass model; ",
-            "supply a score function via score1/score2 when calling vuongtest(): ",
-            conditionMessage(err),
+            "supply a score function via score1/score2 when calling vuongtest().",
             call. = FALSE
           )
         }
-        ## Sentinel: prevent error stack trace details from leaking
-        stop("Failed to compute scores for the model: ", conditionMessage(err), call. = FALSE)
+        stop("Failed to compute scores for the model.", call. = FALSE)
       }
     )
   } else if(class(object)[1] %in% c("lm", "glm", "nls")){
@@ -291,8 +297,18 @@ calcLambda <- function(object1, object2, n, score1, score2, vc1, vc2) {
   AB2 <- calcAB(object2, n, score2, vc2)
   Bc <- calcBcross(AB1$sc, AB2$sc, n)
 
-  invA1 <- tryCatch(chol2inv(chol(AB1$A)), error = function(e) stop("Matrix inversion failed for Model 1 covariance.", call. = FALSE))
-  invA2 <- tryCatch(chol2inv(chol(AB2$A)), error = function(e) stop("Matrix inversion failed for Model 2 covariance.", call. = FALSE))
+  invA1 <- tryCatch(
+    chol2inv(chol(AB1$A)),
+    error = function(e) {
+      stop("Matrix inversion failed for Model 1 covariance.", call. = FALSE)
+    }
+  )
+  invA2 <- tryCatch(
+    chol2inv(chol(AB2$A)),
+    error = function(e) {
+      stop("Matrix inversion failed for Model 2 covariance.", call. = FALSE)
+    }
+  )
   W <- cbind(rbind(-AB1$B %*% invA1,
                    t(Bc) %*% invA1),
              rbind(-Bc %*% invA2,
