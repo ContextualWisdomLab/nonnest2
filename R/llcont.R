@@ -511,9 +511,8 @@ llcont.vglm <- function(x, ...){
 ########################################################################
 #' @export
 llcont.MultipleGroupClass <- function(x, ...) {
-  ## Bolt: optimized row-wise string concatenation using do.call(paste0, ...) for performance
-  dat <- do.call(paste0, as.data.frame(x@Data$data))
-  tab <- do.call(paste0, as.data.frame(x@Data$tabdata))
+  dat <- apply(x@Data$data, 1, paste, collapse = "")
+  tab <- apply(x@Data$tabdata, 1, paste, collapse = "")
   ind <- match(dat, tab)
   g  <- x@Data$group
   gN <- x@Data$groupNames
@@ -526,9 +525,8 @@ llcont.MultipleGroupClass <- function(x, ...) {
 
 #' @export
 llcont.SingleGroupClass <- function(x, ...) {
-  ## Bolt: optimized row-wise string concatenation using do.call(paste0, ...) for performance
-  dat <- do.call(paste0, as.data.frame(x@Data$data))
-  tab <- do.call(paste0, as.data.frame(x@Data$tabdata))
+  dat <- apply(x@Data$data, 1, paste, collapse = "")
+  tab <- apply(x@Data$tabdata, 1, paste, collapse = "")
   ind <- match(dat, tab)
   llcont <- log(x@Internals$Pl[ind])
   return(llcont)
