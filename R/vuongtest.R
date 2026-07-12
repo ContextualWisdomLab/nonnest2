@@ -231,7 +231,7 @@ calcAB <- function(object, n, scfun, vc){
     ## in case mirt vcov was not estimated
     if(nrow(tmpvc) == 1 & is.na(tmpvc[1,1])) stop("Please re-estimate the mirt model with SE=TRUE")
   }
-  A <- chol2inv(chol(tmpvc))
+  A <- tryCatch(chol2inv(chol(tmpvc)), error = function(e) stop("Matrix inversion failed during Vuong test: matrix may not be positive definite.", call. = FALSE))
 
   ## Eq (2.2)
   if(!is.null(scfun)){
@@ -291,10 +291,12 @@ calcLambda <- function(object1, object2, n, score1, score2, vc1, vc2) {
   AB2 <- calcAB(object2, n, score2, vc2)
   Bc <- calcBcross(AB1$sc, AB2$sc, n)
 
-  W <- cbind(rbind(-AB1$B %*% chol2inv(chol(AB1$A)),
-                   t(Bc) %*% chol2inv(chol(AB1$A))),
-             rbind(-Bc %*% chol2inv(chol(AB2$A)),
-                   AB2$B %*% chol2inv(chol(AB2$A))))
+  invA1 <- tryCatch(chol2inv(chol(AB1$A)), error = function(e) stop("Matrix inversion failed for Model 1 covariance.", call. = FALSE))
+  invA2 <- tryCatch(chol2inv(chol(AB2$A)), error = function(e) stop("Matrix inversion failed for Model 2 covariance.", call. = FALSE))
+  W <- cbind(rbind(-AB1$B %*% invA1,
+                   t(Bc) %*% invA1),
+             rbind(-Bc %*% invA2,
+                   AB2$B %*% invA2))
 
   lamstar <- eigen(W, only.values=TRUE)$values
   ## Discard imaginary part, as it only occurs for tiny eigenvalues?
