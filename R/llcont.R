@@ -572,4 +572,3 @@ llcont.MxModel <- function(x, ...){
   return(lls)
 }
 
-
