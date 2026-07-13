@@ -7,5 +7,5 @@
 **Action:** Always prefer `do.call(paste0, as.data.frame(mat))` to concatenate columns vectorized-style instead, which drastically speeds up the operation.
 
 ## 2024-05-25 - Avoid O(N^2) memory reallocation in R loops
-**Learning:** Using `do.call(cbind, ...)` or similar functions to grow objects inside a loop in R causes severe performance degradation due to $O(N^2)$ memory reallocation and copying overhead.
-**Action:** Always accumulate sums directly or preallocate the necessary memory before the loop to ensure $O(N)$ performance.
+**Learning:** Using `do.call(cbind, ...)` to grow an N-row object across K submodels causes $O(NK^2)$ cumulative copying and $O(NK)$ peak storage.
+**Action:** Accumulate sums directly to keep $O(N)$ accumulator storage and $O(NK)$ total accumulation work.

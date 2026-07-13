@@ -566,8 +566,9 @@ llcont.MxModel <- function(x, ...){
         ll_sum <- ll_sum + temp
       }
     }
-    ## Bolt: replaced do.call(cbind, ...) in loop and rowSums() with direct addition to prevent O(N^2) memory reallocation
-    lls <- log(ll_sum)
+    ## Bolt: replaced do.call(cbind, ...) growth (O(NK^2) cumulative copying across K submodels)
+    ## with direct addition; rowSums() drops the n x 1 matrix dim to preserve the numeric-vector return shape
+    lls <- log(rowSums(ll_sum))
   }
 
   return(lls)
