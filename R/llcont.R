@@ -124,7 +124,7 @@ llcont.hurdle <- function(x, ...) {
   ## If 'model' argument is missing, model.frame needs to be created.
   ## requesting a re-run with 'model=TRUE' would be much easier for us
   if (is.null(x$model)) {
-    stop("Please run the model again with the argument 'model=TRUE'")
+    stop("Please run the model again with the argument 'model=TRUE'", call. = FALSE)
   } else {
     X <- model.matrix(x, model="count")
     Z <- model.matrix(x, model="zero")
@@ -225,7 +225,7 @@ llcont.hurdle <- function(x, ...) {
 #' @export
 llcont.zeroinfl <- function(x, ...) {
   if (is.null(x$model)) {
-    stop("Please run the model again with the argument 'model=TRUE'")
+    stop("Please run the model again with the argument 'model=TRUE'", call. = FALSE)
   } else {
     X <- model.matrix(x, model="count")
     Z <- model.matrix(x, model="zero")
@@ -285,7 +285,7 @@ llcont.zeroinfl <- function(x, ...) {
 #' @export
 llcont.lm <- function (x, ...) {
   if (inherits(x, "mlm"))
-    stop("'logLik' does not support multiple responses")
+    stop("'logLik' does not support multiple responses", call. = FALSE)
   res <- x$residuals
   p <- x$rank
   N <- length(res)
@@ -375,9 +375,9 @@ llcont.lavaan <- function(x, ...){
   ## make sure this is multivariate normal likelihood
   if (lavInspect(x, "options")$estimator != "ML" |
       lavInspect(x, "options")$se != "standard"){
-      stop("nonnest2 only works for lavaan models fit via ML\n  (assuming multivariate normality, with no robust SEs).")
+      stop("nonnest2 only works for lavaan models fit via ML\n  (assuming multivariate normality, with no robust SEs).", call. = FALSE)
   }
-  if(tolower(lavInspect(x, "options")$missing) == "ml.x") stop("cannot handle lavaan models with missing='ml.x'. consider using missing='ml'.")
+  if(tolower(lavInspect(x, "options")$missing) == "ml.x") stop("cannot handle lavaan models with missing='ml.x'. consider using missing='ml'.", call. = FALSE)
   mispatts <- lavInspect(x, "patterns")
   if(any(class(mispatts) == "list")){
     npatts <- max(sapply(mispatts, nrow))
@@ -385,7 +385,7 @@ llcont.lavaan <- function(x, ...){
     npatts <- nrow(mispatts)
   }
   if (lavInspect(x, "options")$missing != "ml" & npatts > 1){
-      stop("nonnest2 does not work with pairwise/listwise deletion.\n  refit the model with missing='ml'.")
+      stop("nonnest2 does not work with pairwise/listwise deletion.\n  refit the model with missing='ml'.", call. = FALSE)
   }
   samplestats <- x@SampleStats
   ntab <- lavInspect(x, "norig")
@@ -492,7 +492,7 @@ llcont.lavaan <- function(x, ...){
 
   if(length(llvec) != sum(unlist(lavInspect(x, 'nobs')))){
     llvec <- llvec[!is.na(llvec)]
-    if(length(llvec) != sum(unlist(lavInspect(x, 'nobs')))) warning("nonnest2 warning: problem with llcont(), likely due to missing data.")
+    if(length(llvec) != sum(unlist(lavInspect(x, 'nobs')))) warning("nonnest2 warning: problem with llcont(), likely due to missing data.", call. = FALSE)
   }
 
   llvec
@@ -551,7 +551,7 @@ llcont.MxModel <- function(x, ...){
   if(is.null(wgts)){
     ls <- attr(OpenMx::mxEvalByName("fitfunction", x), 'likelihoods')
     if(is.null(ls)){
-      stop("The row LL has not been saved, check that rowDiagnostics = TRUE")
+      stop("The row LL has not been saved, check that rowDiagnostics = TRUE", call. = FALSE)
     } else {
       lls <- log(ls)
     }
@@ -561,7 +561,7 @@ llcont.MxModel <- function(x, ...){
     for(j in 1:length(nms)){
       temp <- x@submodels[[nms[j]]]$fitfunction$result*wgts[j]
       if(is.null(temp)){
-        stop("The row LL has not been saved, check that rowDiagnostics = TRUE")
+        stop("The row LL has not been saved, check that rowDiagnostics = TRUE", call. = FALSE)
       } else {
         ll_temp <- do.call(cbind, list(ll_temp, temp))
       }

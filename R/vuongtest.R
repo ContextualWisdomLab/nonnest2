@@ -229,7 +229,7 @@ calcAB <- function(object, n, scfun, vc){
   } else {
     tmpvc <- n * vc(object)
     ## in case mirt vcov was not estimated
-    if(nrow(tmpvc) == 1 & is.na(tmpvc[1,1])) stop("Please re-estimate the mirt model with SE=TRUE")
+    if(nrow(tmpvc) == 1 & is.na(tmpvc[1,1])) stop("Please re-estimate the mirt model with SE=TRUE", call. = FALSE)
   }
   A <- tryCatch(
     chol2inv(chol(tmpvc)),
@@ -371,19 +371,19 @@ check.obj <- function(object1, object2) {
     if(classA %in% c("SingleGroupClass", "MultipleGroupClass", "DiscreteClass")){
       callA <- object1@Call
       ## recommended vcov type for mirt models:
-      if(object1@Options$SE.type != "Oakes") warning("SE.type='Oakes' is recommended for mirt models")
+      if(object1@Options$SE.type != "Oakes") warning("SE.type='Oakes' is recommended for mirt models", call. = FALSE)
     } else if(classA %in% c("MxRAMModel" , "MxModel")){
       callA <- object1@name
     } else {
       if ("call" %in% slotNames(object1)) {
         callA <- object1@call
       } else {
-        stop("cannot find call information about object1")
+        stop("cannot find call information about object1", call. = FALSE)
       }
     }
     if(classA == "lavaan"){
       if(length(object1@Data@weights[[1]]) > 0){
-        stop("lavaan objects with sampling weights are not currently supported")
+        stop("lavaan objects with sampling weights are not currently supported", call. = FALSE)
       }
     }
   } else {
@@ -392,19 +392,19 @@ check.obj <- function(object1, object2) {
   if(isS4(object2)){
     if(classB %in% c("SingleGroupClass", "MultipleGroupClass", "DiscreteClass")){
       callB <- object2@Call
-      if(object2@Options$SE.type != "Oakes") warning("SE.type='Oakes' is recommended for mirt models")
+      if(object2@Options$SE.type != "Oakes") warning("SE.type='Oakes' is recommended for mirt models", call. = FALSE)
     } else if(classB %in% c("MxRAMModel" , "MxModel") ){
       callB <- object2@name
     } else {
       if ("call" %in% slotNames(object2)) {
         callB <- object2@call
       } else {
-        stop("cannot find call information about object2")
+        stop("cannot find call information about object2", call. = FALSE)
       }
     }
     if(classB == "lavaan"){
       if(length(object2@Data@weights[[1]]) > 0){
-        stop("lavaan objects with sampling weights are not currently supported")
+        stop("lavaan objects with sampling weights are not currently supported", call. = FALSE)
       }
     }
   } else {
