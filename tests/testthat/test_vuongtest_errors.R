@@ -8,9 +8,9 @@ test_that("the cached inverses preserve Vuong equation 3.6", {
   model_b <- lm(y ~ z, data = dat)
   n <- nrow(dat)
 
-  ab1 <- calcAB(model_a, n, NULL, vcov)
-  ab2 <- calcAB(model_b, n, NULL, vcov)
-  bc <- calcBcross(ab1$sc, ab2$sc, n)
+  ab1 <- nonnest2:::calcAB(model_a, n, NULL, vcov)
+  ab2 <- nonnest2:::calcAB(model_b, n, NULL, vcov)
+  bc <- nonnest2:::calcBcross(ab1$sc, ab2$sc, n)
   expected_w <- cbind(
     rbind(
       -ab1$B %*% chol2inv(chol(ab1$A)),
@@ -24,7 +24,7 @@ test_that("the cached inverses preserve Vuong equation 3.6", {
   expected <- Re(eigen(expected_w, only.values = TRUE)$values)
 
   expect_equal(
-    calcLambda(model_a, model_b, n, NULL, NULL, vcov, vcov),
+    nonnest2:::calcLambda(model_a, model_b, n, NULL, NULL, vcov, vcov),
     expected
   )
 })
