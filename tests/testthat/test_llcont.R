@@ -363,6 +363,11 @@ test_that("OpenMx object", {
     
     expect_equal(sum(llcont(res[[1]])), as.numeric(logLik(res[[1]])))
     expect_equal(sum(llcont(res[[2]])), as.numeric(logLik(res[[2]])))
+
+    ## llcont must return a plain numeric vector, not an n x 1 matrix,
+    ## on both the single-model and weighted multi-submodel paths
+    expect_true(is.null(dim(llcont(res[[1]]))))
+    expect_true(is.null(dim(llcont(res[[2]]))))
   })
 })
 

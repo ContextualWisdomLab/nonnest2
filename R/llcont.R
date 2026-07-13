@@ -557,16 +557,18 @@ llcont.MxModel <- function(x, ...){
     }
   } else {
     nms <- names(x@submodels)
-    ll_temp <- NULL
+    ll_sum <- 0
     for(j in 1:length(nms)){
       temp <- x@submodels[[nms[j]]]$fitfunction$result*wgts[j]
       if(is.null(temp)){
         stop("The row LL has not been saved, check that rowDiagnostics = TRUE", call. = FALSE)
       } else {
-        ll_temp <- do.call(cbind, list(ll_temp, temp))
+        ll_sum <- ll_sum + temp
       }
     }
-    lls <- log(rowSums(ll_temp))
+    ## Bolt: replaced do.call(cbind, ...) growth (O(NK^2) cumulative copying across K submodels)
+    ## with direct addition; rowSums() drops the n x 1 matrix dim to preserve the numeric-vector return shape
+    lls <- log(rowSums(ll_sum))
   }
 
   return(lls)
