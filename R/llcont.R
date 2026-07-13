@@ -557,16 +557,17 @@ llcont.MxModel <- function(x, ...){
     }
   } else {
     nms <- names(x@submodels)
-    ll_temp <- NULL
+    ll_sum <- 0
     for(j in 1:length(nms)){
       temp <- x@submodels[[nms[j]]]$fitfunction$result*wgts[j]
       if(is.null(temp)){
         stop("The row LL has not been saved, check that rowDiagnostics = TRUE")
       } else {
-        ll_temp <- do.call(cbind, list(ll_temp, temp))
+        ll_sum <- ll_sum + temp
       }
     }
-    lls <- log(rowSums(ll_temp))
+    ## Bolt: replaced do.call(cbind, ...) in loop and rowSums() with direct addition to prevent O(N^2) memory reallocation
+    lls <- log(ll_sum)
   }
 
   return(lls)
