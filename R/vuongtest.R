@@ -310,7 +310,8 @@ calcLambda <- function(object1, object2, n, score1, score2, vc1, vc2) {
     }
   )
   W <- cbind(rbind(-AB1$B %*% invA1,
-                   t(Bc) %*% invA1),
+                   ## Bolt: replaced t(Bc) %*% invA1 with optimized crossprod(Bc, invA1) for performance
+                   crossprod(Bc, invA1)),
              rbind(-Bc %*% invA2,
                    AB2$B %*% invA2))
 
