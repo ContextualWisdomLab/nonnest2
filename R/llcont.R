@@ -162,7 +162,7 @@ llcont.hurdle <- function(x, ...) {
   countPoisson <- function(parms) {
     mu <- Y1 * as.vector(exp(X %*% parms + offsetx))
     loglik0 <- -mu
-    res <- numeric(n)
+    res <- Y * 0
     if (any(Y1)) {
       w <- if(length(weights) == 1) weights else weights[Y1]
       loglik1 <- dpois(Y[Y1], lambda = mu[Y1], log = TRUE)
@@ -189,7 +189,7 @@ llcont.hurdle <- function(x, ...) {
     theta <- exp(parms[kx + 1])
     loglik0 <- suppressWarnings(dnbinom(0, size = theta,
                                         mu = mu, log = TRUE))
-    res <- numeric(n)
+    res <- Y * 0
     if (any(Y1)) {
       w <- if(length(weights) == 1) weights else weights[Y1]
       loglik1 <- suppressWarnings(dnbinom(Y[Y1], size = theta,
