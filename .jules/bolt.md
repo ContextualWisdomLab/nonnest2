@@ -12,3 +12,6 @@
 ## 2026-07-14 - Matrix Cross Product Optimization
 **Learning:** In R, matrix multiplication of the form `t(X) %*% Y` explicitly allocates memory for the transposed matrix. Using the optimized base function `crossprod(X, Y)` avoids this allocation.
 **Action:** Always replace `t(X) %*% Y` with `crossprod(X, Y)` for faster and more memory-efficient cross-product calculations.
+## 2024-07-25 - Avoid ifelse for Expensive Operations in R
+**Learning:** In R codebases, `ifelse()` evaluates both true and false branches entirely before subsetting, which introduces unnecessary overhead, especially for mathematical functions like `exp()` and `log()` over zero-valued entries.
+**Action:** Optimize this overhead by replacing `ifelse()` with preallocation that preserves attributes (e.g., `res <- Y * 0` instead of `numeric(n)`) and vectorized subsetting (e.g., `res[cond] <- ...`). When subsetting variables during vectorized operations (e.g., `weights[cond]`), always check if the variable might be a scalar to prevent out-of-bounds subsetting.
