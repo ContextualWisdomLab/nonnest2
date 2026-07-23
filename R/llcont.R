@@ -150,14 +150,28 @@ llcont.hurdle <- function(x, ...) {
   zeroPoisson <- function(parms) {
     mu <- as.vector(exp(Z %*% parms + offsetz))
     loglik0 <- -mu
-    Y0 * weights * loglik0 + ifelse(Y1, weights * log(1 - exp(loglik0)), 0)
+    ## Bolt: replaced ifelse() with vectorized subsetting for performance
+    term <- Y * 0
+    if (any(Y1)) {
+      w_sub <- if(length(weights) == 1) weights else weights[Y1]
+      l0_sub <- if(length(loglik0) == 1) loglik0 else loglik0[Y1]
+      term[Y1] <- w_sub * log(1 - exp(l0_sub))
+    }
+    Y0 * weights * loglik0 + term
   }
 
   countPoisson <- function(parms) {
     mu <- Y1 * as.vector(exp(X %*% parms + offsetx))
     loglik0 <- -mu
     loglik1 <- Y1 * dpois(Y, lambda = mu, log = TRUE)
-    Y1 * weights * loglik1 - ifelse(Y1, weights * log(1 - exp(loglik0)), 0)
+    ## Bolt: replaced ifelse() with vectorized subsetting for performance
+    term <- Y * 0
+    if (any(Y1)) {
+      w_sub <- if(length(weights) == 1) weights else weights[Y1]
+      l0_sub <- if(length(loglik0) == 1) loglik0 else loglik0[Y1]
+      term[Y1] <- w_sub * log(1 - exp(l0_sub))
+    }
+    Y1 * weights * loglik1 - term
   }
 
   zeroNegBin <- function(parms) {
@@ -165,8 +179,14 @@ llcont.hurdle <- function(x, ...) {
     theta <- exp(parms[kz + 1])
     loglik0 <- suppressWarnings(dnbinom(0, size = theta,
                                         mu = mu, log = TRUE))
-    Y0 * weights * loglik0 +
-        ifelse(Y1, weights * log(1 - exp(loglik0)), 0)
+    ## Bolt: replaced ifelse() with vectorized subsetting for performance
+    term <- Y * 0
+    if (any(Y1)) {
+      w_sub <- if(length(weights) == 1) weights else weights[Y1]
+      l0_sub <- if(length(loglik0) == 1) loglik0 else loglik0[Y1]
+      term[Y1] <- w_sub * log(1 - exp(l0_sub))
+    }
+    Y0 * weights * loglik0 + term
   }
 
   countNegBin <- function(parms) {
@@ -176,7 +196,15 @@ llcont.hurdle <- function(x, ...) {
                                         mu = mu, log = TRUE))
     loglik1 <- suppressWarnings(dnbinom(Y, size = theta,
                                         mu = mu, log = TRUE))
-    ifelse(Y1, weights * loglik1 - weights * log(1 - exp(loglik0)), 0)
+    ## Bolt: replaced ifelse() with vectorized subsetting for performance
+    term <- Y * 0
+    if (any(Y1)) {
+      w_sub <- if(length(weights) == 1) weights else weights[Y1]
+      l1_sub <- if(length(loglik1) == 1) loglik1 else loglik1[Y1]
+      l0_sub <- if(length(loglik0) == 1) loglik0 else loglik0[Y1]
+      term[Y1] <- w_sub * l1_sub - w_sub * log(1 - exp(l0_sub))
+    }
+    term
     }
 
   zeroGeom <- function(parms) zeroNegBin(c(parms, 0))
