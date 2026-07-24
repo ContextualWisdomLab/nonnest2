@@ -12,3 +12,6 @@
 ## 2026-07-14 - Matrix Cross Product Optimization
 **Learning:** In R, matrix multiplication of the form `t(X) %*% Y` explicitly allocates memory for the transposed matrix. Using the optimized base function `crossprod(X, Y)` avoids this allocation.
 **Action:** Always replace `t(X) %*% Y` with `crossprod(X, Y)` for faster and more memory-efficient cross-product calculations.
+## 2024-05-18 - R ifelse performance pitfall in hurdle log-likelihoods
+**Learning:** `ifelse(Y1, yes, no)` evaluates both the `yes` and `no` branches completely before subsetting. In R/llcont.R hurdle model evaluations (`zeroPoisson`, etc.), this meant expensive vector math `log(1 - exp(loglik0))` was unnecessarily computed for all observations, even when the hurdle condition `Y1` was false.
+**Action:** Replace `ifelse()` calls mapping over vectors with preallocation (`res <- Y1 * 0` to preserve length, type, and names) and vectorized subset subsetting (`if (any(Y1)) res[Y1] <- ...`). Always check if variables like `weights` are scalars before subsetting them to avoid out-of-bounds errors.
