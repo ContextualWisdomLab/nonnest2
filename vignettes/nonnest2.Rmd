@@ -65,13 +65,9 @@ vuongtest(fit1, fit2)
 ```
 We see that we obtain two tests, the *variance test* and the *non-nested likelihood ratio test*.  The former test informs us of the models' distinguishability, while the latter test compares the fits of two distinguishable models.  Focusing on the variance test here, we obtain a small test statistic and a large *p*-value.  These results imply that, as we suspected, the two models are indistinguishable in the focal population.
 
-We can also use Vuong's theory to obtain confidence intervals for the difference in the models' AIC or BIC statistics:
-```{r}
-icci(fit1, fit2)
-```
-Based on this output, we see that the AIC and BIC statistics are close but lower for `fit1` than for `fit2`.  The 95% confidence intervals overlap with 0, implying that the model fits are sufficiently close that neither can be preferred over the other.  The confidence intervals for AIC and BIC differences are exactly the same because both models have the same numbers of parameters; this would not typically occur for other models.
+Do **not** use `icci()` for this pair.  The `icci()` function documentation states that its intervals are incorrect when models are nested or when the `vuongtest()` variance test indicates that the models are indistinguishable.  The next example shows a non-nested pair that passes the distinguishability gate before information-criterion intervals are computed.
 
-## Distiguishable and Non-Nested models
+## Distinguishable and Non-Nested models
 
 Now consider the following structural equation models, using Bollen's political democracy data.  The first model is the original (classic) model, while the second model estimates different residual covariance parameters.  The models are non-nested due to the differing residual covariances.
 ```{r}
@@ -119,7 +115,13 @@ We now apply the Vuong tests to the two models.
 ```{r}
 vuongtest(fit1, fit2)
 ```
-We now see that the variance tests indicates that the models are distinguishable (at least, at $\alpha=.05$).  This allows us to move on to the second test, which compares the fits of the two models.  Based on this second test, we conclude that the two models have equal fit in the population of interest.  Note that *fit* is defined here in terms of Kullback-Leibler distance (between each candidate model and the true model), and we make no assumption about either of the two candidate models being the true model.
+We now see that the variance test indicates that the models are distinguishable (at least, at $\alpha=.05$).  This allows us to move on to the second test, which compares the fits of the two models.  Based on this second test, we conclude that the two models have equal fit in the population of interest.  Note that *fit* is defined here in terms of Kullback-Leibler distance (between each candidate model and the true model), and we make no assumption about either of the two candidate models being the true model.
+
+Because this pair is non-nested and passes the distinguishability gate, `icci()` can now be used for confidence intervals on the AIC and BIC differences:
+```{r}
+icci(fit1, fit2)
+```
+Interpret those intervals together with the distinguishability and relative-fit evidence; they do not make an indistinguishable or nested comparison valid.
 
 ## Nested models
 Finally, `vuongtest()` includes a `nested` argument, using Vuong's theory to compare nested models.  The resulting test statistics, which are very similar to the statistics described above, can be viewed as robust versions of the traditional likelihood ratio test (LRT) for nested models.  This is because Vuong's theory makes no assumption about either candidate model being the true model, whereas the traditional LRT assumes that the full model is the truth.
