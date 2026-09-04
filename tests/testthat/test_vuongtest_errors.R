@@ -57,3 +57,19 @@ test_that("vuongtest sanitizes singular covariance errors", {
     )
   )
 })
+
+test_that("vuongtest rejects unsupported adjustment names before model processing", {
+  for (adj in c("AIC", "", "aic ")) {
+    err <- tryCatch(
+      vuongtest(NULL, NULL, adj = adj),
+      error = identity
+    )
+
+    expect_s3_class(err, "error")
+    expect_identical(
+      conditionMessage(err),
+      'adj must be one of "none", "aic", or "bic"'
+    )
+    expect_null(conditionCall(err))
+  }
+})
