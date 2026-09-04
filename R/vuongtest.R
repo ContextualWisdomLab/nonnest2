@@ -97,6 +97,12 @@
 #' @importFrom methods slotNames
 #' @export
 vuongtest <- function(object1, object2, nested=FALSE, adj="none", ll1=llcont, ll2=llcont, score1=NULL, score2=NULL, vc1=vcov, vc2=vcov) {
+  if (length(nested) != 1 || !is.logical(nested) || is.na(nested)) {
+    stop("nested must be a single logical value (TRUE or FALSE).", call. = FALSE)
+  }
+  if (length(adj) != 1 || !is.character(adj) || is.na(adj) || !(adj %in% c("none", "aic", "bic"))) {
+    stop('adj must be a single character string: "none", "aic", or "bic".', call. = FALSE)
+  }
 
   ## check objects, issue warnings/errors, get classes/calls
   obinfo <- check.obj(object1, object2)
