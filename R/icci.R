@@ -65,6 +65,17 @@
 #' @export
 icci <- function(object1, object2, conf.level=.95, ll1=llcont, ll2=llcont) {
 
+  if (length(conf.level) != 1L || !is.numeric(conf.level) ||
+      !is.finite(conf.level) || conf.level <= 0 || conf.level >= 1) {
+    stop(
+      paste(
+        "Argument 'conf.level' must be a single finite numeric value",
+        "strictly between 0 and 1."
+      ),
+      call. = FALSE
+    )
+  }
+
   ## check objects, issue warnings/errors, get classes/calls
   obinfo <- check.obj(object1, object2)
   callA <- obinfo$callA; classA <- obinfo$classA
