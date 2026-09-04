@@ -12,3 +12,8 @@
 **Vulnerability:** Raw `stop()` and `warning()` calls without `call. = FALSE` in `llcont.R` and `vuongtest.R` exposed execution stack/call details when raised.
 **Learning:** While some instances of `stop()` inside `tryCatch()` were previously fixed to hide the call stack, other standalone exceptions and warnings still leaked call context. Security must be consistently applied across the entire codebase.
 **Prevention:** Always set `call. = FALSE` when using `stop()` or `warning()` to enforce a secure-by-default boundary and prevent internal execution paths from being disclosed to the end user.
+
+## 2024-07-25 - Prevent Information Disclosure via Unvalidated Arguments
+**Vulnerability:** Top-level exported functions (`vuongtest`, `icci`) did not validate user arguments (like `nested`, `adj`, `conf.level`). Passing malformed inputs bypassed the secure `stop(..., call. = FALSE)` checks and caused raw R exceptions to be thrown deep inside nested calls (e.g., matrix operations or internal conditional evaluations), leaking the internal execution context/call stack.
+**Learning:** Security boundaries (like `call. = FALSE`) are only effective if inputs are sanitized before they trigger internal system errors. Unvalidated inputs can act as an attack vector to force internal state disclosure.
+**Prevention:** Always validate the type, length, and valid bounds of user-supplied arguments at the very beginning of exported functions to fail fast and securely with a controlled error message.
