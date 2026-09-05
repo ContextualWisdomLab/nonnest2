@@ -407,7 +407,8 @@ llcont.lavaan <- function(x, ...){
   if(tolower(lavInspect(x, "options")$missing) == "ml.x") stop("cannot handle lavaan models with missing='ml.x'. consider using missing='ml'.", call. = FALSE)
   mispatts <- lavInspect(x, "patterns")
   if(any(class(mispatts) == "list")){
-    npatts <- max(sapply(mispatts, nrow))
+    ## Bolt: replaced sapply with vapply for performance
+    npatts <- max(vapply(mispatts, nrow, numeric(1)))
   } else {
     npatts <- nrow(mispatts)
   }
