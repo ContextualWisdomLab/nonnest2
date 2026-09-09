@@ -14,5 +14,5 @@ test_that("grouped binomial llcont expands scalar prior weights over all rows", 
 
   expect_length(contributions, 3L)
   expect_false(anyNA(contributions))
-  expect_equal(contributions[2], 0)
+  expect_equal(unname(contributions[2]), 0)
 })
