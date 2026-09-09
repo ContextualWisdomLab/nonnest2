@@ -37,6 +37,7 @@ Suggests:
     knitr,
     microbenchmark,
     rmarkdown,
+    pkgload,
     testthat
 URL: https://github.com/qpsy/nonnest2
 VignetteBuilder: knitr
