@@ -15,3 +15,7 @@
 ## 2024-05-15 - [R Performance: ifelse Overhead]
 **Learning:** In R, ifelse evaluates both true and false branches entirely before subsetting, which is very inefficient for vector operations.
 **Action:** Optimize this by preallocating with res <- Y * 0 to preserve attributes and using vectorized subsetting like if any cond res subset <- ...
+
+## 2024-09-11 - Optimized matrix subsetting in R
+**Learning:** In R codebases, when extracting specific elements from a matrix based on row-wise category indices (e.g., selecting the fitted probability for the observed class), creating a one-hot encoded matrix and multiplying it uses `O(N*L)` time and space. Using direct two-dimensional matrix subsetting (e.g., `fitted_values[cbind(seq_along(y), y)]` or `x$fitted.values[wherey]`) reduces this to `O(N)` and is significantly faster and less memory-intensive.
+**Action:** Always look for opportunities to replace dense matrix one-hot encoding approaches with direct 2D matrix subsetting `x[cbind(row_indices, col_indices)]` when extracting specific values per row.
