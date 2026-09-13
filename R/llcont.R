@@ -190,7 +190,7 @@ llcont.hurdle <- function(x, ...) {
   }
 
   countNegBin <- function(parms) {
-    mu <- as.vector(exp(X %*% parms[1:kx] + offsetx))
+    mu <- Y1 * as.vector(exp(X %*% parms[1:kx] + offsetx))
     theta <- exp(parms[kx + 1])
     loglik0 <- suppressWarnings(dnbinom(0, size = theta,
                                         mu = mu, log = TRUE))
@@ -240,9 +240,9 @@ llcont.hurdle <- function(x, ...) {
                if (zero.dist == "negbin") log(x$theta["zero"]) else NULL))
   } else {
     loglikfun(c(x$coefficients$count,
-                if (dist == "negbin") log(x$theta["count"]) else NULL,
+                if (dist == "negbin") log(x$theta) else NULL,
                 x$coefficients$zero,
-                if (zero.dist == "negbin") log(x$theta["zero"]) else NULL))
+                if (zero.dist == "negbin") log(x$theta) else NULL))
   }
 }
 
@@ -283,7 +283,7 @@ llcont.zeroinfl <- function(x, ...) {
   }
 
   ziNegBin <- function(parms) {
-    mu <- as.vector(exp(X %*% parms[1:kx] + offsetx))
+    mu <- as.vector(exp(X %*% parms[1:kx] + offsetz))
     phi <- as.vector(linkinv(Z %*% parms[(kx + 1):(kx + kz)] + offsetz))
     theta <- exp(parms[(kx + kz) + 1])
     loglik0 <- log(phi + exp(log(1 - phi) +
@@ -366,8 +366,15 @@ llcont.polr <- function(x, ...) {
   wherey <- cbind(seq_along(y), as.numeric(y))
 
   ## Bolt: replaced matrix creation and rowSums with direct matrix subsetting for performance
+  fitted_probability <- x$fitted.values[wherey]
   w <- model.weights(m)
-  res <- if (is.null(w)) log(x$fitted.values[wherey]) else w * log(x$fitted.values[wherey])
+  if (is.null(w)) {
+    res <- log(fitted_probability)
+  } else {
+    res <- numeric(length(fitted_probability))
+    nonzero_weight <- which(w != 0)
+    res[nonzero_weight] <- w[nonzero_weight] * log(fitted_probability[nonzero_weight])
+  }
   names(res) <- rownames(x$fitted.values)
   if (is.null(names(res))) names(res) <- names(y)
   res
@@ -602,4 +609,3 @@ llcont.MxModel <- function(x, ...){
 
   return(lls)
 }
-
