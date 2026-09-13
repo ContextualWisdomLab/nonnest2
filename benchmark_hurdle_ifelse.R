@@ -34,6 +34,7 @@ weights <- 1
 
 bm <- microbenchmark(
   original = run_zeroPoisson_orig(Z, parms, offsetz, weights, Y0, Y1),
+  optimized = run_zeroPoisson_opt(Z, parms, offsetz, weights, Y0, Y1),
   times = 100,
   control = list(warmup = 10)
 )
