@@ -15,6 +15,6 @@ test_that("glm binomial zero totals and zero prior weights preserve likelihood c
   contributions <- llcont(fit)
 
   expect_true(all(is.finite(contributions)))
-  expect_equal(contributions[c(1, 4)], c(0, 0))
+  expect_equal(unname(contributions[c(1, 4)]), c(0, 0))
   expect_equal(sum(contributions), as.numeric(logLik(fit)))
 })
