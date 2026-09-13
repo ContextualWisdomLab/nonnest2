@@ -2,8 +2,6 @@ Changes in Version 0.5-9
 
     o bug fixes: lavaan parameter counts with equality constraints, mirt DiscreteClass (credit to Seongho Bae)
 
-    o llcont.polr now extracts each observation's fitted category probability directly and handles models without explicit case weights
-
 Changes in Version 0.5-8
 
     o add support for objects of DiscreteClass from mirt package (credit to Phil Chalmers)

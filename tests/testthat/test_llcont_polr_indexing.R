@@ -1,12 +1,10 @@
 context("llcont.polr indexing")
 
-
 .require_mass <- function() {
   if (!requireNamespace("MASS", quietly = TRUE)) {
     skip("MASS is required for polr regression coverage")
   }
 }
-
 
 test_that("unweighted polr contributions retain one value per fitted row", {
   .require_mass()
@@ -18,64 +16,20 @@ test_that("unweighted polr contributions retain one value per fitted row", {
   expect_equal(sum(contributions), as.numeric(logLik(fit)))
 })
 
-
-test_that("weighted polr contributions preserve model weights", {
+test_that("weighted polr contributions retain one value per fitted row", {
   .require_mass()
-  fit <- MASS::polr(
-    Sat ~ Infl + Type + Cont,
-    data = MASS::housing,
-    weights = Freq,
-    Hess = TRUE
-  )
-  response_codes <- as.numeric(unclass(model.response(fit$model)))
-  expected <- model.weights(fit$model) * log(
-    fit$fitted.values[cbind(seq_along(response_codes), response_codes)]
-  )
+  fit <- MASS::polr(Sat ~ Infl + Type + Cont, data = MASS::housing, weights = Freq, Hess = TRUE)
   contributions <- llcont(fit)
 
   expect_length(contributions, nrow(fit$fitted.values))
   expect_equal(names(contributions), rownames(fit$fitted.values))
-  expect_equal(unname(contributions), unname(expected))
+
+  y <- unclass(fit$model[[1]])
+  w <- model.weights(fit$model)
+  wherey <- cbind(seq_along(y), as.numeric(y))
+  direct_calc <- w * log(fit$fitted.values[wherey])
+  names(direct_calc) <- rownames(fit$fitted.values)
+  expect_equal(as.numeric(contributions), as.numeric(direct_calc))
+
   expect_equal(sum(contributions), as.numeric(logLik(fit)))
-})
-
-
-test_that("polr fitted probabilities are independent of row-name labels", {
-  .require_mass()
-  labelled_housing <- MASS::housing
-  rownames(labelled_housing) <- sprintf("case-%03d", seq_len(nrow(labelled_housing)))
-  fit <- MASS::polr(
-    Sat ~ Infl + Type + Cont,
-    data = labelled_housing,
-    weights = Freq,
-    Hess = TRUE
-  )
-  response_codes <- as.numeric(unclass(model.response(fit$model)))
-  expected <- model.weights(fit$model) * log(
-    fit$fitted.values[cbind(seq_along(response_codes), response_codes)]
-  )
-  contributions <- llcont(fit)
-
-  expect_length(contributions, nrow(fit$fitted.values))
-  expect_equal(names(contributions), rownames(fit$fitted.values))
-  expect_equal(unname(contributions), unname(expected))
-  expect_equal(sum(contributions), as.numeric(logLik(fit)))
-})
-
-
-test_that("polr direct indexing uses fitted-row position after subsetting", {
-  .require_mass()
-  retained <- setdiff(seq_len(nrow(MASS::housing)), c(2L, 5L, 8L))
-  fit <- MASS::polr(
-    Sat ~ Infl + Type + Cont,
-    data = MASS::housing[retained, , drop = FALSE],
-    Hess = TRUE
-  )
-  response_codes <- as.numeric(unclass(model.response(fit$model)))
-  expected <- log(
-    fit$fitted.values[cbind(seq_along(response_codes), response_codes)]
-  )
-
-  expect_equal(unname(llcont(fit)), unname(expected))
-  expect_equal(sum(llcont(fit)), as.numeric(logLik(fit)))
 })

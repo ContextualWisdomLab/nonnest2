@@ -9,9 +9,15 @@
 ## 2024-05-25 - Avoid O(N^2) memory reallocation in R loops
 **Learning:** Using `do.call(cbind, ...)` to grow an N-row object across K submodels causes $O(NK^2)$ cumulative copying and $O(NK)$ peak storage.
 **Action:** Accumulate sums directly to keep $O(N)$ accumulator storage and $O(NK)$ total accumulation work.
+
 ## 2026-07-14 - Matrix Cross Product Optimization
 **Learning:** In R, matrix multiplication of the form `t(X) %*% Y` explicitly allocates memory for the transposed matrix. Using the optimized base function `crossprod(X, Y)` avoids this allocation.
 **Action:** Always replace `t(X) %*% Y` with `crossprod(X, Y)` for faster and more memory-efficient cross-product calculations.
+
 ## 2024-05-15 - [R Performance: ifelse Overhead]
 **Learning:** In R, ifelse evaluates both true and false branches entirely before subsetting, which is very inefficient for vector operations.
 **Action:** Optimize this by preallocating with res <- Y * 0 to preserve attributes and using vectorized subsetting like if any cond res subset <- ...
+
+## 2026-08-11 - Matrix indexing vs allocation and multiplication
+**Learning:** In R codebases, allocating a zero matrix, updating specific elements using `matrix(c(rows, cols), ncol=2)`, and multiplying before `rowSums` is extremely inefficient (O(N*K) space and time) compared to directly subsetting the values using the index matrix `[cbind(rows, cols)]`.
+**Action:** When extracting one element per row from a matrix based on a vector of column indices, never build an indicator matrix to multiply. Always use matrix subsetting `mat[cbind(1:nrow(mat), col_indices)]` which is magnitudes faster.
