@@ -19,6 +19,27 @@ test_that("unweighted polr contributions retain one value per fitted row", {
 })
 
 
+test_that("weighted polr contributions preserve model weights", {
+  .require_mass()
+  fit <- MASS::polr(
+    Sat ~ Infl + Type + Cont,
+    data = MASS::housing,
+    weights = Freq,
+    Hess = TRUE
+  )
+  response_codes <- as.numeric(unclass(model.response(fit$model)))
+  expected <- model.weights(fit$model) * log(
+    fit$fitted.values[cbind(seq_along(response_codes), response_codes)]
+  )
+  contributions <- llcont(fit)
+
+  expect_length(contributions, nrow(fit$fitted.values))
+  expect_equal(names(contributions), rownames(fit$fitted.values))
+  expect_equal(unname(contributions), unname(expected))
+  expect_equal(sum(contributions), as.numeric(logLik(fit)))
+})
+
+
 test_that("polr direct indexing uses fitted-row position after subsetting", {
   .require_mass()
   retained <- setdiff(seq_len(nrow(MASS::housing)), c(2L, 5L, 8L))
