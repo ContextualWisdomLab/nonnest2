@@ -190,7 +190,7 @@ llcont.hurdle <- function(x, ...) {
   }
 
   countNegBin <- function(parms) {
-    mu <- Y1 * as.vector(exp(X %*% parms[1:kx] + offsetx))
+    mu <- as.vector(exp(X %*% parms[1:kx] + offsetx))
     theta <- exp(parms[kx + 1])
     loglik0 <- suppressWarnings(dnbinom(0, size = theta,
                                         mu = mu, log = TRUE))
@@ -240,9 +240,9 @@ llcont.hurdle <- function(x, ...) {
                if (zero.dist == "negbin") log(x$theta["zero"]) else NULL))
   } else {
     loglikfun(c(x$coefficients$count,
-                if (dist == "negbin") log(x$theta) else NULL,
+                if (dist == "negbin") log(x$theta["count"]) else NULL,
                 x$coefficients$zero,
-                if (zero.dist == "negbin") log(x$theta) else NULL))
+                if (zero.dist == "negbin") log(x$theta["zero"]) else NULL))
   }
 }
 
@@ -283,7 +283,7 @@ llcont.zeroinfl <- function(x, ...) {
   }
 
   ziNegBin <- function(parms) {
-    mu <- as.vector(exp(X %*% parms[1:kx] + offsetz))
+    mu <- as.vector(exp(X %*% parms[1:kx] + offsetx))
     phi <- as.vector(linkinv(Z %*% parms[(kx + 1):(kx + kz)] + offsetz))
     theta <- exp(parms[(kx + kz) + 1])
     loglik0 <- log(phi + exp(log(1 - phi) +
