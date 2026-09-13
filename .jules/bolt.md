@@ -15,6 +15,3 @@
 ## 2024-05-15 - [R Performance: ifelse Overhead]
 **Learning:** In R, ifelse evaluates both true and false branches entirely before subsetting, which is very inefficient for vector operations.
 **Action:** Optimize this by preallocating with res <- Y * 0 to preserve attributes and using vectorized subsetting like if any cond res subset <- ...
-## 2026-08-11 - Fast Vectorized Subsetting over `ifelse()`
-**Learning:** `ifelse(cond, true_branch, false_branch)` evaluates both branches entirely before subsetting, which creates significant overhead, especially in hot loops or likelihood calculations. Replacing it with vectorized subsetting (e.g. `res <- true_branch; res[!cond] <- false_branch`) is much faster and retains the same NA handling as `ifelse()`. Using `which()` for indices can alter NA behavior (since `which()` drops NAs) and must be carefully evaluated, but simple vectorized assignment is safe and highly performant.
-**Action:** Replace `ifelse()` with vectorized assignment (e.g. `res <- a/b; res[b == 0] <- 0`) when optimizing hot loops or performance-critical likelihood paths.
