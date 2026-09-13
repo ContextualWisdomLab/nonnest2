@@ -53,22 +53,12 @@ llcont.glm <- function(x, ...){
              if(is.matrix(y)) {
                ## Bolt: replaced apply(..., 1, sum) with optimized rowSums() for performance
                n <- rowSums(y)
-               ## Bolt: replaced ifelse with vectorized subsetting for performance
-               y_tmp <- y[, 1] / n
-               cond <- n == 0
-               cond[is.na(cond)] <- FALSE
-               y_tmp[cond] <- 0
-               y <- y_tmp
+               y <- ifelse(n == 0, 0, y[, 1]/n)
              } else {
                n <- rep.int(1, length(y))
              }
              m <- if (any(n > 1)) n else wt
-             ## Bolt: replaced ifelse with vectorized subsetting for performance
-             wt_tmp <- wt / m
-             cond <- m <= 0
-             cond[is.na(cond)] <- FALSE
-             wt_tmp[cond] <- 0
-             wt <- wt_tmp
+             wt <- ifelse(m > 0, (wt/m), 0)
              dbinom(round(m * y), round(m), mpreds, log = TRUE) * wt
            },
            quasibinomial = {
