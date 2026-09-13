@@ -371,9 +371,12 @@ llcont.polr <- function(x, ...) {
   if (is.null(w)) {
     res <- log(fitted_probability)
   } else {
-    res <- numeric(length(fitted_probability))
-    nonzero_weight <- which(w != 0)
-    res[nonzero_weight] <- w[nonzero_weight] * log(fitted_probability[nonzero_weight])
+    res <- w * 0
+    nz <- w != 0
+    nz[is.na(nz)] <- FALSE
+    if (any(nz)) {
+      res[nz] <- w[nz] * log(fitted_probability[nz])
+    }
   }
   names(res) <- rownames(x$fitted.values)
   if (is.null(names(res))) names(res) <- names(y)
