@@ -1,2 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.github$
+^\.jules$
+^AGENTS\.md$
+^CLAUDE\.md$
+^benchmark_hurdle_ifelse\.R$
