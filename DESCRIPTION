@@ -36,6 +36,7 @@ Suggests:
     pscl,
     knitr,
     microbenchmark,
+    pkgload,
     rmarkdown,
     testthat
 URL: https://github.com/qpsy/nonnest2
