@@ -5,7 +5,7 @@ test_that("binomial matrix responses preserve casewise likelihood contributions"
     success = c(0, 1, 2, 0, 3),
     failure = c(0, 3, 2, 4, 1)
   )
-  prior_weights <- c(2, 1, 3, 4, 5)
+  prior_weights <- c(2, 0, 3, 4, 5)
   fitted_probabilities <- c(0.2, 0.3, 0.4, 0.5, 0.6)
 
   fit <- structure(
@@ -35,4 +35,5 @@ test_that("binomial matrix responses preserve casewise likelihood contributions"
 
   expect_equal(actual, expected)
   expect_equal(actual[totals == 0], 0)
+  expect_equal(actual[prior_weights == 0], 0)
 })
