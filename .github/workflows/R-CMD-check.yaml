@@ -1,43 +1,28 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+#
+# Thin caller: shared R-CMD-check logic lives in the org-wide reusable
+# workflow. See ContextualWisdomLab/.github#1716,
+# ContextualWisdomLab/.github's docs/adr/0023-r-cmd-check-reusable-workflow-consolidation.md
+# and docs/doctoring/r-cmd-check-reusable-workflow-consolidation.md.
+name: R-CMD-check
+
 on:
   push:
     branches: [main, master]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
   pull_request:
     branches: [main, master]
-
-name: R-CMD-check
-
-permissions:
-  contents: read
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
 
 jobs:
   R-CMD-check:
-    runs-on: ubuntu-latest
-
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      R_KEEP_PKG_SOURCE: yes
-
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - uses: r-lib/actions/setup-pandoc@6f6e5bc62fba3a704f74e7ad7ef7676c5c6a2590 # v2
-
-      # The package vignette builds to PDF; TinyTeX provides LaTeX and
-      # auto-installs missing packages (e.g. framed.sty) during compilation.
-      - uses: r-lib/actions/setup-tinytex@6f6e5bc62fba3a704f74e7ad7ef7676c5c6a2590 # v2
-
-      - uses: r-lib/actions/setup-r@6f6e5bc62fba3a704f74e7ad7ef7676c5c6a2590 # v2
-        with:
-          use-public-rspm: true
-
-      - uses: r-lib/actions/setup-r-dependencies@6f6e5bc62fba3a704f74e7ad7ef7676c5c6a2590 # v2
-        with:
-          extra-packages: any::rcmdcheck
-          needs: check
-
-      - uses: r-lib/actions/check-r-package@6f6e5bc62fba3a704f74e7ad7ef7676c5c6a2590 # v2
-        with:
-          error-on: '"error"'
-          upload-snapshots: true
-          build_args: 'c("--no-manual")'
+    uses: ContextualWisdomLab/.github/.github/workflows/r-package-check.yml@816e3e4970fde4450585de2a7b8df7e2c5f82fe4
+    permissions:
+      contents: read
+    with:
+      r_matrix: '[{"os": "ubuntu-latest", "r": "release"}]'
+      needs_tinytex: true
