@@ -82,17 +82,20 @@ test_that("polr direct indexing uses fitted-row position after subsetting", {
 
 
 test_that("zero-weight impossible categories contribute zero instead of NaN", {
-  response <- ordered(c("low", "high"), levels = c("low", "high"))
+  response <- ordered(c("low", "high"), levels = c("low", "mid", "high"))
   model <- stats::model.frame(
     response ~ 1,
     data = data.frame(response = response),
     weights = c(0, 1)
   )
   fitted_values <- matrix(
-    c(0, 1, 0.25, 0.75),
+    c(0, 0.4, 0.6, 0.1, 0.15, 0.75),
     nrow = 2,
     byrow = TRUE,
-    dimnames = list(c("zero-weight", "positive-weight"), c("low", "high"))
+    dimnames = list(
+      c("zero-weight", "positive-weight"),
+      c("low", "mid", "high")
+    )
   )
   fit <- structure(
     list(model = model, fitted.values = fitted_values, lev = levels(response)),
