@@ -367,7 +367,8 @@ llcont.polr <- function(x, ...) {
   ## Bolt: replaced one-hot encoding matrix (O(N*K) space) and rowSums with
   ## optimized 2D matrix subsetting and seq_along() indexing for performance
   probs <- x$fitted.values[cbind(seq_along(y), y)]
-  model.weights(m) * log(probs)
+  w <- model.weights(m)
+  if (is.null(w)) log(probs) else w * log(probs)
 }
 
 ################################################################
