@@ -15,3 +15,6 @@
 ## 2024-05-15 - [R Performance: ifelse Overhead]
 **Learning:** In R, ifelse evaluates both true and false branches entirely before subsetting, which is very inefficient for vector operations.
 **Action:** Optimize this by preallocating with res <- Y * 0 to preserve attributes and using vectorized subsetting like if any cond res subset <- ...
+## 2026-08-11 - Matrix 2D Subsetting vs Dummy Matrices
+**Learning:** In R, extracting specific elements from a matrix based on row-wise category indices by allocating a one-hot dummy matrix and taking `rowSums` of the element-wise product allocates an $N \times K$ matrix, requiring $O(NK)$ space and operations. This is very slow for large datasets. Furthermore, if row names are non-sequential, mapping via `as.numeric(names(y))` can cause out-of-bounds subsetting crashes.
+**Action:** Always prefer direct two-dimensional matrix subsetting (e.g., `fitted_values[cbind(seq_along(y), y)]`) to extract the elements in $O(N)$ space and time without allocating any dummy structures. Additionally, always use `seq_along` rather than `names` to safely guarantee sequential row mapping.
