@@ -363,12 +363,23 @@ llcont.nls <- function (x, ...) {
 llcont.polr <- function(x, ...) {
   m <- x$model
   y <- unclass(model.response(m))
-  wherey <- matrix(c(as.numeric(names(y)), y), ncol=2)
-  idx <- matrix(0, nrow=length(y), ncol=length(x$lev))
-  idx[wherey] <- 1
 
-  ## Bolt: replaced apply(..., 1, sum) with optimized rowSums() for performance
-  model.weights(m) * log(rowSums(idx * x$fitted.values))
+  ## Bolt: Use 2D matrix indexing to extract fitted probabilities directly
+  ## This avoids allocating an N x K one-hot matrix and fixes a bug where
+  ## row names mismatch with row order led to incorrect indexing.
+  probs <- x$fitted.values[cbind(seq_along(y), y)]
+  w <- model.weights(m)
+
+  if (is.null(w)) {
+    res <- log(probs)
+  } else {
+    ## Preallocate result vector and conditionally multiply to handle zero weights safely
+    res <- w * 0
+    nz <- w > 0
+    res[nz] <- w[nz] * log(probs[nz])
+  }
+  names(res) <- names(y)
+  res
 }
 
 ################################################################
