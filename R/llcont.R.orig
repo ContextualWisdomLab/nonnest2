@@ -363,12 +363,12 @@ llcont.nls <- function (x, ...) {
 llcont.polr <- function(x, ...) {
   m <- x$model
   y <- unclass(model.response(m))
-  w <- model.weights(m)
+  wherey <- matrix(c(as.numeric(names(y)), y), ncol=2)
+  idx <- matrix(0, nrow=length(y), ncol=length(x$lev))
+  idx[wherey] <- 1
 
-  ## Bolt: replaced O(N*K) matrix allocation and rowSums() with O(N) 2D positional subsetting
-  ## seq_along(y) is used instead of as.numeric(names(y)) to ensure robust 1:N sequence matching
-  vals <- log(x$fitted.values[cbind(seq_along(y), y)])
-  as.numeric(if (is.null(w)) vals else w * vals)
+  ## Bolt: replaced apply(..., 1, sum) with optimized rowSums() for performance
+  model.weights(m) * log(rowSums(idx * x$fitted.values))
 }
 
 ################################################################
@@ -600,4 +600,3 @@ llcont.MxModel <- function(x, ...){
 
   return(lls)
 }
-

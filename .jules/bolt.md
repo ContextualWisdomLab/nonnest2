@@ -15,3 +15,7 @@
 ## 2024-05-15 - [R Performance: ifelse Overhead]
 **Learning:** In R, ifelse evaluates both true and false branches entirely before subsetting, which is very inefficient for vector operations.
 **Action:** Optimize this by preallocating with res <- Y * 0 to preserve attributes and using vectorized subsetting like if any cond res subset <- ...
+
+## 2024-05-14 - Optimize llcont.polr with 2D positional subsetting
+**Learning:** In R, extracting values from an `N x K` matrix based on row indices using an `N x K` indicator matrix and `rowSums` is extremely inefficient (O(N*K) memory and operations). This was found in the `llcont.polr` function.
+**Action:** Replace `O(N*K)` matrix allocations and `rowSums` multiplications with direct `O(N)` 2D positional matrix subsetting using `cbind(seq_along(y), y)` to extract exactly the fitted probabilities for the observed classes.
