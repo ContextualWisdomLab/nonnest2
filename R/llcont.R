@@ -368,7 +368,11 @@ llcont.polr <- function(x, ...) {
   ## Bolt: replaced O(N*K) matrix allocation and rowSums() with O(N) 2D positional subsetting
   ## seq_along(y) is used instead of as.numeric(names(y)) to ensure robust 1:N sequence matching
   vals <- log(x$fitted.values[cbind(seq_along(y), y)])
-  as.numeric(if (is.null(w)) vals else w * vals)
+  res <- if (is.null(w)) vals else w * vals
+
+  ## Restore observation names (which were preserved by the original rowSums behavior)
+  names(res) <- names(y)
+  res
 }
 
 ################################################################
