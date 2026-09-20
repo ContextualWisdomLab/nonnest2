@@ -457,9 +457,8 @@ llcont.lavaan <- function(x, ...){
           tmpll.x <- dnorm(x@Data@X[[g]][,x.idx], Mu.X, sqrt(Sigma.X), log=TRUE)
         } else {
           ## Sentinel: prevent error details from leaking
-          tmpll.x <- try(dmvnorm(x@Data@X[[g]][,x.idx], Mu.X, Sigma.X, log=TRUE), silent = TRUE)
+          tmpll.x <- tryCatch(dmvnorm(x@Data@X[[g]][,x.idx], Mu.X, Sigma.X, log=TRUE), error = function(e) NA)
         }
-        if(inherits(tmpll.x, "try-error")) tmpll.x <- NA
         llvec[grpind] <- llvec[grpind] - tmpll.x
       }
 
@@ -500,9 +499,8 @@ llcont.lavaan <- function(x, ...){
             tmpll.x <- dnorm(X[,x.dat.idx], Mu.X, sqrt(Sigma.X), log=TRUE)
           } else {
             ## Sentinel: prevent error details from leaking
-            tmpll.x <- try(dmvnorm(X[,x.dat.idx], Mu.X, Sigma.X, log=TRUE), silent = TRUE)
+            tmpll.x <- tryCatch(dmvnorm(X[,x.dat.idx], Mu.X, Sigma.X, log=TRUE), error = function(e) NA)
           }
-          if(inherits(tmpll.x, "try-error")) tmpll.x <- NA
           tmpll[case.idx] <- tmpll[case.idx] - tmpll.x
         }
       }
