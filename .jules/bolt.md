@@ -23,3 +23,7 @@
 ## 2024-10-25 - Transient CI failures with open code review
 **Learning:** Transient CI failures in workflows like `opencode-review` (e.g., 'No APPROVED or CHANGES_REQUESTED from opencode-agent on the current head') are environmental errors related to asynchronous GitHub App processing or transient network timeouts.
 **Action:** Resolve them by resubmitting the PR with the exact same details to trigger a new run, without modifying the codebase.
+
+## 2024-10-25 - Transient CI failures with CodeQL analysis
+**Learning:** Transient CI failures in workflows like `CodeQL compatibility analysis` (e.g., 'CodeQL scan dispatched. The dispatch workflow will rerun this exact failed CodeQL job after publishing its terminal verdict.') are environmental errors related to asynchronous GitHub App processing or transient network timeouts.
+**Action:** Resolve them by resubmitting the PR with the exact same details to trigger a new run, without modifying the codebase.
