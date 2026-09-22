@@ -53,6 +53,7 @@ llcont.glm <- function(x, ...){
              if(is.matrix(y)) {
                ## Bolt: replaced apply(..., 1, sum) with optimized rowSums() for performance
                n <- rowSums(y)
+               ## Bolt: replaced ifelse with preallocation and vectorized subsetting for performance
                y_new <- y[, 1]/n
                y_new[!is.na(n) & n == 0] <- 0
                y <- y_new
@@ -60,6 +61,7 @@ llcont.glm <- function(x, ...){
                n <- rep.int(1, length(y))
              }
              m <- if (any(n > 1)) n else wt
+             ## Bolt: replaced ifelse with preallocation and vectorized subsetting for performance
              wt_new <- wt/m
              wt_new[!is.na(m) & m <= 0] <- 0
              wt <- wt_new
