@@ -12,3 +12,8 @@
 **Vulnerability:** Raw `stop()` and `warning()` calls without `call. = FALSE` in `llcont.R` and `vuongtest.R` exposed execution stack/call details when raised.
 **Learning:** While some instances of `stop()` inside `tryCatch()` were previously fixed to hide the call stack, other standalone exceptions and warnings still leaked call context. Security must be consistently applied across the entire codebase.
 **Prevention:** Always set `call. = FALSE` when using `stop()` or `warning()` to enforce a secure-by-default boundary and prevent internal execution paths from being disclosed to the end user.
+
+## 2024-11-20 - [Information Exposure via try() in R]
+**Vulnerability:** Use of `try(..., silent = TRUE)` which generates a `try-error` object holding the original error context.
+**Learning:** R's `try()` saves the full error message and call trace, which could accidentally leak sensitive internal stack traces or environment states if serialized or logged. `tryCatch()` allows immediate suppression without allocating this state.
+**Prevention:** Always use `tryCatch(..., error = function(e) NA)` instead of `try(..., silent = TRUE)` to prevent sensitive error details from leaking in memory.
