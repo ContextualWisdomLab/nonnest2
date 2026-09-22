@@ -1,6 +1,9 @@
 context("llcont.polr contribution contract")
 
 test_that("llcont.polr handles unweighted and reordered observations", {
+  previous_contrasts <- getOption("contrasts")
+  on.exit(options(contrasts = previous_contrasts), add = TRUE)
+
   with_test_packages("MASS", {
     data("housing", package = "MASS")
     options(contrasts = c("contr.treatment", "contr.poly"))
