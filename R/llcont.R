@@ -363,14 +363,21 @@ llcont.nls <- function (x, ...) {
 llcont.polr <- function(x, ...) {
   m <- x$model
   y <- unclass(model.response(m))
+
+  ## Bolt: Use 2D matrix indexing to extract fitted probabilities directly
+  ## This avoids allocating an N x K one-hot matrix and fixes a bug where
+  ## row names mismatch with row order led to incorrect indexing.
+  probs <- x$fitted.values[cbind(seq_along(y), y)]
   w <- model.weights(m)
 
-  ## Bolt: replaced O(N*K) matrix allocation and rowSums() with O(N) 2D positional subsetting
-  ## seq_along(y) is used instead of as.numeric(names(y)) to ensure robust 1:N sequence matching
-  vals <- log(x$fitted.values[cbind(seq_along(y), y)])
-  res <- if (is.null(w)) vals else w * vals
-
-  ## Restore observation names (which were preserved by the original rowSums behavior)
+  if (is.null(w)) {
+    res <- log(probs)
+  } else {
+    ## Preallocate result vector and conditionally multiply to handle zero weights safely
+    res <- w * 0
+    nz <- w > 0
+    res[nz] <- w[nz] * log(probs[nz])
+  }
   names(res) <- names(y)
   res
 }
