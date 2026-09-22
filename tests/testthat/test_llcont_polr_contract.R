@@ -27,5 +27,20 @@ test_that("llcont.polr handles unweighted and reordered observations", {
 
     expect_equal(llcont(weighted), expected)
     expect_equal(sum(llcont(weighted)), as.numeric(logLik(weighted)))
+
+    zero_weight_housing <- housing
+    zero_weight_housing$Freq[1] <- 0
+    zero_weighted <- MASS::polr(
+      Sat ~ Infl + Type + Cont,
+      weights = Freq,
+      data = zero_weight_housing
+    )
+    zero_response <- unclass(model.response(zero_weighted$model))
+    zero_row <- which(model.weights(zero_weighted$model) == 0)[1]
+    zero_weighted$fitted.values[zero_row, zero_response[zero_row]] <- 0
+
+    zero_contrib <- llcont(zero_weighted)
+    expect_false(any(is.nan(zero_contrib)))
+    expect_equal(unname(zero_contrib[zero_row]), 0)
   })
 })
