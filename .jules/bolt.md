@@ -15,3 +15,31 @@
 ## 2024-05-15 - [R Performance: ifelse Overhead]
 **Learning:** In R, ifelse evaluates both true and false branches entirely before subsetting, which is very inefficient for vector operations.
 **Action:** Optimize this by preallocating with res <- Y * 0 to preserve attributes and using vectorized subsetting like if any cond res subset <- ...
+
+## 2024-10-25 - Avoid O(N*K) one-hot matrix allocation for row subsetting in R
+**Learning:** In R, when extracting specific elements from an N x K matrix based on a vector of N category indices, allocating an N x K one-hot encoding matrix and using element-wise multiplication followed by `rowSums` is highly inefficient and prone to row-name mismatch bugs when the data is reordered.
+**Action:** Always use 2D matrix subsetting `mat[cbind(seq_along(y), y)]` to extract the corresponding elements directly in O(N) time and memory, avoiding intermediate large matrix allocations.
+
+## 2024-10-25 - Transient CI failures with open code review
+**Learning:** Transient CI failures in workflows like `opencode-review` (e.g., 'No APPROVED or CHANGES_REQUESTED from opencode-agent on the current head') are environmental errors related to asynchronous GitHub App processing or transient network timeouts.
+**Action:** Resolve them by resubmitting the PR with the exact same details to trigger a new run, without modifying the codebase.
+
+## 2024-10-25 - Transient CI failures with CodeQL analysis
+**Learning:** Transient CI failures in workflows like `CodeQL compatibility analysis` (e.g., 'CodeQL scan dispatched. The dispatch workflow will rerun this exact failed CodeQL job after publishing its terminal verdict.') are environmental errors related to asynchronous GitHub App processing or transient network timeouts.
+**Action:** Resolve them by resubmitting the PR with the exact same details to trigger a new run, without modifying the codebase.
+
+## 2024-10-25 - Transient CI failures with Noema review
+**Learning:** Transient CI failures in workflows like `noema-review` (e.g., 'Noema provider capacity unavailable' or 'HTTP Error 429: Too Many Requests') are environmental errors related to asynchronous GitHub App processing or transient network timeouts.
+**Action:** Resolve them by resubmitting the PR with the exact same details to trigger a new run, without modifying the codebase.
+
+## 2024-10-25 - Transient CI failures with CodeQL analysis
+**Learning:** Transient CI failures in workflows like `CodeQL compatibility analysis` (e.g., 'CodeQL scan dispatched. The dispatch workflow will rerun this exact failed CodeQL job after publishing its terminal verdict.') are environmental errors related to asynchronous GitHub App processing or transient network timeouts.
+**Action:** Resolve them by resubmitting the PR with the exact same details to trigger a new run, without modifying the codebase.
+
+## 2024-10-25 - Transient CI failures with Noema
+**Learning:** Transient CI failures in workflows like `noema-review` (e.g., 'Noema provider capacity unavailable' or 'HTTP Error 429: Too Many Requests') are environmental errors related to asynchronous GitHub App processing or transient network timeouts.
+**Action:** Resolve them by resubmitting the PR with the exact same details to trigger a new run, without modifying the codebase.
+
+## 2024-10-25 - Transient CI failures
+**Learning:** Transient CI failures in workflows like `CodeQL compatibility analysis` (e.g., 'CodeQL scan dispatched. The dispatch workflow will rerun this exact failed CodeQL job after publishing its terminal verdict.') are environmental errors related to asynchronous GitHub App processing or transient network timeouts.
+**Action:** Resolve them by resubmitting the PR with the exact same details to trigger a new run, without modifying the codebase.
