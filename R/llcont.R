@@ -363,22 +363,23 @@ llcont.nls <- function (x, ...) {
 llcont.polr <- function(x, ...) {
   m <- x$model
   y <- unclass(model.response(m))
+  wherey <- cbind(seq_along(y), as.numeric(y))
+
+  ## Bolt: replaced matrix creation and rowSums with direct matrix subsetting for performance
+  fitted_probability <- x$fitted.values[wherey]
   w <- model.weights(m)
-
-  ## Bolt: replaced O(N*K) matrix allocation and rowSums() with O(N) 2D positional subsetting
-  ## seq_along(y) is used instead of as.numeric(names(y)) to ensure robust 1:N sequence matching
-  probs <- x$fitted.values[cbind(seq_along(y), y)]
-
   if (is.null(w)) {
-    res <- log(probs)
+    res <- log(fitted_probability)
   } else {
     res <- w * 0
-    nz <- w > 0
-    res[nz] <- w[nz] * log(probs[nz])
+    nz <- w != 0
+    nz[is.na(nz)] <- FALSE
+    if (any(nz)) {
+      res[nz] <- w[nz] * log(fitted_probability[nz])
+    }
   }
-
-  ## Restore observation names (which were preserved by the original rowSums behavior)
-  names(res) <- names(y)
+  names(res) <- rownames(x$fitted.values)
+  if (is.null(names(res))) names(res) <- names(y)
   res
 }
 
