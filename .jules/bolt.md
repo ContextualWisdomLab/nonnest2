@@ -15,7 +15,3 @@
 ## 2024-05-15 - [R Performance: ifelse Overhead]
 **Learning:** In R, ifelse evaluates both true and false branches entirely before subsetting, which is very inefficient for vector operations.
 **Action:** Optimize this by preallocating with res <- Y * 0 to preserve attributes and using vectorized subsetting like if any cond res subset <- ...
-
-## 2024-05-17 - Optimize llcont.polr likelihood computation in nonnest2
-**Learning:** In R, extracting fitted probabilities for an observed class by creating an N x K one-hot encoded sparse matrix and multiplying/row-summing requires O(NK) memory allocation and processing time. This is especially slow and redundant since the fitted values matrix directly contains the answer.
-**Action:** Replace the one-hot matrix creation and rowSums with direct 2D positional subsetting using a matrix of indices `cbind(seq_along(y), y)`. This is a constant time lookup operation for each row, taking O(N) memory and avoiding building large dummy matrices. It preserves memory and is consistently ~10x faster for large N. I must remember to carefully apply `names(res) <- names(y)` since 2D subsetting strips row names from the resulting vector.
