@@ -15,6 +15,3 @@
 ## 2024-05-15 - [R Performance: ifelse Overhead]
 **Learning:** In R, ifelse evaluates both true and false branches entirely before subsetting, which is very inefficient for vector operations.
 **Action:** Optimize this by preallocating with res <- Y * 0 to preserve attributes and using vectorized subsetting like if any cond res subset <- ...
-## 2024-08-11 - Optimized `ifelse` in binomial likelihood calculations
-**Learning:** In R, `ifelse` evaluates both branches entirely before subsetting, which is very inefficient for vector operations, particularly in performance-critical code paths like likelihood functions.
-**Action:** Replace `ifelse` with vectorized subsetting and mathematical operations (e.g., `res <- Y * X; res[!is.na(cond) & cond] <- Z`) to significantly improve performance.
