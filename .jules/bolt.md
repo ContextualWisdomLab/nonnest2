@@ -15,3 +15,6 @@
 ## 2024-05-15 - [R Performance: ifelse Overhead]
 **Learning:** In R, ifelse evaluates both true and false branches entirely before subsetting, which is very inefficient for vector operations.
 **Action:** Optimize this by preallocating with res <- Y * 0 to preserve attributes and using vectorized subsetting like if any cond res subset <- ...
+## 2024-05-24 - Vectorized subsetting over `ifelse` in R
+**Learning:** `ifelse` in R evaluates both condition branches completely before subsetting and is notoriously slow.
+**Action:** Replace `ifelse(cond, yes, no)` with vectorized subsetting for large vector operations where possible (e.g., `res <- yes; res[!is.na(cond) & cond] <- no`). Ensure NA conditions are carefully preserved.
