@@ -52,6 +52,7 @@ llcont.glm <- function(x, ...){
            binomial = {
              if(is.matrix(y)) {
                n <- rowSums(y)
+               ## Bolt: replaced ifelse with preallocation and vectorized subsetting for performance
                y_res <- y[, 1]/n
                y_res[!is.na(n) & n == 0] <- 0
                y <- y_res
@@ -59,6 +60,7 @@ llcont.glm <- function(x, ...){
                n <- rep.int(1, length(y))
              }
              m <- if (any(n > 1)) n else wt
+             ## Bolt: replaced ifelse with preallocation and vectorized subsetting for performance
              wt_res <- wt/m
              wt_res[!is.na(m) & m <= 0] <- 0
              wt <- wt_res
