@@ -51,7 +51,6 @@ llcont.glm <- function(x, ...){
     switch(fam,
            binomial = {
              if(is.matrix(y)) {
-               ## Bolt: replaced apply(..., 1, sum) with optimized rowSums() for performance
                n <- rowSums(y)
                ## Bolt: replaced ifelse with vectorized subsetting for performance
                y_new <- y[, 1]/n
