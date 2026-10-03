@@ -347,6 +347,17 @@ test_that("polr object", {
     zero_weight_contrib <- llcont(polr_zero_weight)
     fitted_zero_weights <- model.weights(polr_zero_weight$model) == 0
 
+    ## Reproduce the original 0 * log(0) boundary deterministically.
+    zero_probability_fit <- polr_zero_weight
+    zero_weight_rows <- which(fitted_zero_weights)
+    zero_weight_response <- unclass(model.response(
+      zero_probability_fit$model
+    ))[zero_weight_rows]
+    zero_probability_fit$fitted.values[
+      cbind(zero_weight_rows, zero_weight_response)
+    ] <- 0
+    zero_probability_contrib <- llcont(zero_probability_fit)
+
     expect_equal(sum(llcont(polr1)), as.numeric(logLik(polr1)))
     expect_equal(sum(llcont(polr2)), as.numeric(logLik(polr2)))
     expect_equal(sum(llcont(polr3)), as.numeric(logLik(polr3)))
@@ -354,6 +365,8 @@ test_that("polr object", {
     expect_length(unweighted_contrib, nrow(polr_unweighted$model))
     expect_equal(unname(unweighted_contrib), unname(expected_unweighted))
     expect_equal(unname(zero_weight_contrib[fitted_zero_weights]),
+                 rep(0, sum(fitted_zero_weights)))
+    expect_equal(unname(zero_probability_contrib[fitted_zero_weights]),
                  rep(0, sum(fitted_zero_weights)))
     expect_equal(sum(zero_weight_contrib),
                  as.numeric(logLik(polr_zero_weight)))
