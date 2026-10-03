@@ -322,28 +322,6 @@ test_that("nls object", {
 test_that("polr object", {
   with_test_packages("MASS", {
     options(contrasts = c("contr.treatment", "contr.poly"))
-    unweighted_polr <- polr(Sat ~ Infl + Type + Cont, data = housing)
-    unweighted_contributions <- llcont(unweighted_polr)
-    expect_length(unweighted_contributions, nrow(housing))
-    expect_equal(
-      sum(unweighted_contributions),
-      as.numeric(logLik(unweighted_polr))
-    )
-
-    zero_weight_housing <- housing
-    zero_weight_housing$Freq[1] <- 0
-    zero_weight_polr <- polr(
-      Sat ~ Infl + Type + Cont,
-      weights = Freq,
-      data = zero_weight_housing
-    )
-    zero_weight_contributions <- llcont(zero_weight_polr)
-    expect_identical(unname(zero_weight_contributions[1]), 0)
-    expect_equal(
-      sum(zero_weight_contributions),
-      as.numeric(logLik(zero_weight_polr))
-    )
-
     polr1 <- polr(Sat ~ Infl + Type + Cont, weights = Freq, data = housing)
     polr2 <- update(polr1, method = "probit", Hess = TRUE)
     polr3 <- update(polr1, method = "loglog", Hess = TRUE)

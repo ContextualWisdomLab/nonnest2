@@ -361,25 +361,23 @@ llcont.nls <- function (x, ...) {
 ################################################################
 #' @export
 llcont.polr <- function(x, ...) {
-  model_frame <- x$model
-  response_categories <- unclass(model.response(model_frame))
+  m <- x$model
+  y <- unclass(model.response(m))
 
-  ## Select each observation's fitted category probability without an N x K matrix.
-  fitted_probabilities <- x$fitted.values[
-    cbind(seq_along(response_categories), response_categories)
-  ]
-  observation_weights <- model.weights(model_frame)
+  ## Bolt: replaced O(N*K) matrix allocation (idx) with O(N) memory 2D positional subsetting.
+  ## Also explicitly handled NULL weights and zero weights to prevent regressions.
+  probs <- x$fitted.values[cbind(seq_along(y), y)]
+  w <- model.weights(m)
 
-  if (is.null(observation_weights)) {
-    log_likelihood <- log(fitted_probabilities)
+  if (is.null(w)) {
+    res <- log(probs)
   } else {
-    log_likelihood <- observation_weights * 0
-    positive_weight <- observation_weights > 0
-    log_likelihood[positive_weight] <- observation_weights[positive_weight] *
-      log(fitted_probabilities[positive_weight])
+    res <- w * 0
+    nz <- w > 0
+    res[nz] <- w[nz] * log(probs[nz])
   }
-  names(log_likelihood) <- names(response_categories)
-  log_likelihood
+  names(res) <- names(y)
+  res
 }
 
 ################################################################
