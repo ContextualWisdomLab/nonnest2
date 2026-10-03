@@ -327,10 +327,36 @@ test_that("polr object", {
     polr3 <- update(polr1, method = "loglog", Hess = TRUE)
     polr4 <- update(polr1, method = "cloglog", Hess = TRUE)
 
+    ## Unweighted models exercise the NULL model.weights() branch and must
+    ## retain one casewise contribution per fitted observation.
+    unweighted_housing <- housing[rep(seq_len(nrow(housing)), housing$Freq), ]
+    polr_unweighted <- polr(Sat ~ Infl + Type + Cont,
+                            data = unweighted_housing)
+    unweighted_contrib <- llcont(polr_unweighted)
+    unweighted_response <- unclass(model.response(polr_unweighted$model))
+    expected_unweighted <- log(polr_unweighted$fitted.values[
+      cbind(seq_along(unweighted_response), unweighted_response)
+    ])
+
+    ## A zero-weight observation remains in the model frame but contributes
+    ## exactly zero, including when a fitted probability approaches zero.
+    zero_weights <- housing$Freq
+    zero_weights[1] <- 0
+    polr_zero_weight <- polr(Sat ~ Infl + Type + Cont,
+                             weights = zero_weights, data = housing)
+    zero_weight_contrib <- llcont(polr_zero_weight)
+    fitted_zero_weights <- model.weights(polr_zero_weight$model) == 0
+
     expect_equal(sum(llcont(polr1)), as.numeric(logLik(polr1)))
     expect_equal(sum(llcont(polr2)), as.numeric(logLik(polr2)))
     expect_equal(sum(llcont(polr3)), as.numeric(logLik(polr3)))
     expect_equal(sum(llcont(polr4)), as.numeric(logLik(polr4)))
+    expect_length(unweighted_contrib, nrow(polr_unweighted$model))
+    expect_equal(unname(unweighted_contrib), unname(expected_unweighted))
+    expect_equal(unname(zero_weight_contrib[fitted_zero_weights]),
+                 rep(0, sum(fitted_zero_weights)))
+    expect_equal(sum(zero_weight_contrib),
+                 as.numeric(logLik(polr_zero_weight)))
   })
 })
 
