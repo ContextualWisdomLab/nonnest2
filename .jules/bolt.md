@@ -15,3 +15,10 @@
 ## 2024-05-15 - [R Performance: ifelse Overhead]
 **Learning:** In R, ifelse evaluates both true and false branches entirely before subsetting, which is very inefficient for vector operations.
 **Action:** Optimize this by preallocating with res <- Y * 0 to preserve attributes and using vectorized subsetting like if any cond res subset <- ...
+## 2024-05-18 - R Performance Pattern: `apply` on matrices
+**Learning:** In R, `apply(..., 1, sum)` or `apply(..., 2, mean)` on matrices is significantly slower than using the optimized, vectorized base equivalents `rowSums()`, `colSums()`, `rowMeans()`, and `colMeans()`.
+**Action:** Always prefer `rowSums()`, `colSums()`, `rowMeans()`, and `colMeans()` over `apply` for basic matrix summarization to ensure better performance.
+
+## 2024-05-18 - R Performance Pattern: `model.weights` NULL check
+**Learning:** In R, `model.weights()` returns `NULL` when a model is unweighted. Attempting to multiply `NULL` by a numeric vector (e.g., `model.weights(m) * log(probs)`) evaluates to an empty vector (`numeric(0)`).
+**Action:** Always explicitly check for `NULL` (e.g., `if (is.null(w)) ... else w * ...`) when applying model weights in mathematical operations.
