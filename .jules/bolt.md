@@ -15,3 +15,6 @@
 ## 2024-05-15 - [R Performance: ifelse Overhead]
 **Learning:** In R, ifelse evaluates both true and false branches entirely before subsetting, which is very inefficient for vector operations.
 **Action:** Optimize this by preallocating with res <- Y * 0 to preserve attributes and using vectorized subsetting like if any cond res subset <- ...
+## 2026-10-04 - R ifelse evaluation in binomial/glm likelihoods
+**Learning:** `ifelse(cond, yes, no)` evaluates both the `yes` and `no` branches completely before subsetting. In large models like `glm(family=binomial)` evaluated by `llcont`, this results in significant performance overhead (and sometimes unintended division-by-zero operations that would otherwise be masked by `ifelse`). Intermediate division by zero in R yields `Inf`/`NaN` which is safe as long as they are properly overwritten using vectorized subsetting afterwards.
+**Action:** Replace `ifelse()` with vectorized subsetting with explicit NA handling (e.g. `tmp[!is.na(cond) & cond] <- 0`) for large arrays. Pre-allocate using a variable that matches the length of the condition vector.
